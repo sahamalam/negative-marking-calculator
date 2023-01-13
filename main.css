@@ -173,3 +173,10 @@ h1 em {
     margin-left: -30px;
     background-color: #dfdfdf;
 }
+
+td, 
+p {
+  font-weight: 400;
+    color: #222;
+    font-size: 15px;
+}
