@@ -12,7 +12,7 @@ input {
     border: solid 2px #d2dbe2;
     height: 40px;
     box-sizing: border-box;
-    width: 100%;
+    width: 90%;
     font-family: 'Quicksand', sans-serif;
     font-size: 18px;
     transition: all .3s ease-in-out;
@@ -27,7 +27,7 @@ select {
     border: solid 2px #d2dbe2;
     height: 40px;
     box-sizing: border-box;
-    width: 100%;
+    width: 90%;
     font-family: 'Quicksand', sans-serif;
     font-size: 18px;
     transition: all .3s ease-in-out;
@@ -179,4 +179,5 @@ p {
   font-weight: 400;
     color: #222;
     font-size: 15px;
+    padding: 10px;
 }
