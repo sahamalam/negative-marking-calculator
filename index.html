@@ -2,36 +2,42 @@
 <html>
 
 <head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>Negative Marking Calculator</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
-    <script src='main.js'></script>
+    <meta name="Description"
+        content="This application calculates competitive exam marks based on negative marking system" />
+    <meta name="Keywords"
+        content="negative marking calculator, 1/3 negative marking calculator online, 1/3 n marking calculator, 1/4 negative marking calculator" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="index, follow" />
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <script src="main.js"></script>
 </head>
 
 <body>
-    <table style="align: center; width: 100%;">
+    <table style="align: center; width: 100%">
         <tbody>
             <tr>
-                <td>Total Questions </td>
-                <td><input class="code1" id="a1" required="" type="number"></td>
+                <td>Total Questions</td>
+                <td><input class="code1" id="a1" required="" type="number" /></td>
             </tr>
             <tr>
                 <td>Maximum Marks</td>
-                <td><input class="code1" id="b1" required="" type="number"></td>
+                <td><input class="code1" id="b1" required="" type="number" /></td>
             </tr>
             <tr>
                 <td>Total Questions Attempted</td>
-                <td> <input class="code1" id="a2" required="" type="number"></td>
+                <td><input class="code1" id="a2" required="" type="number" /></td>
             </tr>
             <tr>
                 <td>Number of Wrong Questions</td>
-                <td> <input class="code1" id="a4" required="" type="number"></td>
+                <td><input class="code1" id="a4" required="" type="number" /></td>
             </tr>
             <tr>
-                <td>Negative Marking Ratio </td>
-                <td> <select class="code1" id="a5" name="Part of Negative Marking" required="">
+                <td>Negative Marking Ratio</td>
+                <td>
+                    <select class="code1" id="a5" name="Part of Negative Marking" required="">
                         <option>Choose</option>
                         <option value="1">1/1</option>
                         <option value="2">1/2</option>
@@ -40,20 +46,24 @@
                         <option value="5">1/5</option>
                         <option value="6">1/6</option>
                         <option value="7">1/7</option>
-                        <option value="999999999999999999999999999999">No Negative</option>
-                    </select></td>
+                        <option value="999999999999999999999999999999">
+                            No Negative
+                        </option>
+                    </select>
+                </td>
             </tr>
         </tbody>
     </table>
     <p>Final Number:</p>
-    <p class="boxshadow"> <span id="a6" name="total_amt" style="color: red; font-size: xx-large;" type="number"></span>
+    <p class="boxshadow">
+        <span id="a6" name="total_amt" style="color: red; font-size: xx-large" type="number"></span>
     </p>
-    <div align="center" style="margin: 6px;"> <button class='butn butn__new' name="button" onclick="calculate()"
-            type="submit">Calculate</button></div>
-    <p> <span class="finalad"></span></p>
-
-
-
+    <div align="center" style="margin: 6px">
+        <button class="butn butn__new" name="button" onclick="calculate()" type="submit">
+            Calculate
+        </button>
+    </div>
+    <p><span class="finalad"></span></p>
 </body>
 
 </html>
