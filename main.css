@@ -18,7 +18,12 @@ input {
     transition: all .3s ease-in-out;
     color: #000;
 }
-
+input:focus-visible,
+select:focus-visible {
+    border: 2px solid gold;
+    border-radius: 3px;
+    outline: none;
+}
 
 select {
     display: inline-block;
