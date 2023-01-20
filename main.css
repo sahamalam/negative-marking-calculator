@@ -16,7 +16,7 @@ input {
     font-family: 'Nunito', sans-serif;
     font-size: 18px;
     transition: all .3s ease-in-out;
-    color: #000;
+    color: #0D2366;
 }
 input:focus-visible,
 select:focus-visible {
