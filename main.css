@@ -146,12 +146,12 @@ h1 em {
 /* === HEADING STYLE #5 === */
 .five h1 {
     text-align: center;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 700;
     color: #0D2366;
     text-transform: uppercase;
-    word-spacing: 1px;
-    letter-spacing: 2px;
+    word-spacing: 0.5px;
+    letter-spacing: 1px;
 }
 
 .five h1 span {
@@ -185,4 +185,8 @@ p {
     color:#0D2366;
     font-size: 17px;
     padding: 10px;
+}
+
+h1{
+    padding-top: 25px;
 }
