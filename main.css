@@ -459,3 +459,10 @@ background-color: #FF6600
   display: block; /* Show the popup */
   opacity: 1; /* Fully visible */
 }
+/* Responsive design for smaller screens */
+@media (max-width: 600px) {
+  .popup-message {
+    width: 90%; /* Make it responsive */
+    padding: 10px; /* Adjust padding */
+  }
+}

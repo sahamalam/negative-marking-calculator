@@ -93,8 +93,8 @@ function clearFields() {
     const popup = document.getElementById('popup');
     popup.classList.add('show'); // Add the show class to display it
 
-    // Remove the popup after 2 seconds
+    // Remove the popup after 3 seconds
     setTimeout(() => {
         popup.classList.remove('show'); // Remove the show class to hide it
-    }, 6000);
+    }, 3000);
 }
