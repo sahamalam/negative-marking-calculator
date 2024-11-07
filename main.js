@@ -79,3 +79,22 @@ function clearFields() {
       (document.getElementById("a5").value = ""),
       (document.getElementById("a6").innerHTML = "");
   }
+
+  function copyToClipboard(text) {
+    // Create a temporary textarea element
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+
+    // Show the popup message
+    const popup = document.getElementById('popup');
+    popup.classList.add('show'); // Add the show class to display it
+
+    // Remove the popup after 2 seconds
+    setTimeout(() => {
+        popup.classList.remove('show'); // Remove the show class to hide it
+    }, 6000);
+}
