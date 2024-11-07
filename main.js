@@ -68,6 +68,11 @@ function _0x2df0(_0x3506de, _0x4dd340) {
 
   // Display the result with two decimal places
   document[_0x3cdcf6(0x1c3)]("a6")["innerHTML"] = _0x3d271d.toFixed(2);
+  // Display the final score
+  document.getElementById("finalScore")["innerText"] = _0x3d271d.toFixed(2);
+
+  // Show the modal
+  document.getElementById("resultModal").style.display = "flex";
 });
 
 
@@ -98,3 +103,76 @@ function clearFields() {
         popup.classList.remove('show'); // Remove the show class to hide it
     }, 3000);
 }
+
+function closeModal() {
+    document.getElementById("resultModal").style.display = "none";
+  }
+  
+  function downloadResult() {
+    const { jsPDF } = window.jspdf; // Access jsPDF from the window object
+    const totalQuestions = document.getElementById("a1").value;
+    const maxMarks = document.getElementById("b1").value;
+    const attempted = document.getElementById("a2").value;
+    const wrongAnswers = document.getElementById("a4").value;
+    const negativeRatio = document.getElementById("a5").options[
+      document.getElementById("a5").selectedIndex
+    ].text; // Get the text of the selected option
+    const a6 = document.getElementById("a6").innerText;
+  
+    const doc = new jsPDF();
+    // Set title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(24);
+    doc.text("Negative Marking Calculator Results", 105, 20, { align: "center" });
+  
+    // Draw a line under the title
+    doc.setLineWidth(0.5);
+    doc.line(10, 25, 200, 25); // Horizontal line
+  
+    // Set font for the body text
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(16);
+  
+    // Add content with some spacing
+    const startY = 30; // Starting Y position for the text
+    const lineHeight = 10; // Space between lines
+  
+    doc.text(`Total Questions: ${totalQuestions}`, 10, startY);
+    doc.text(`Maximum Marks: ${maxMarks}`, 10, startY + lineHeight);
+    doc.text(
+      `Total Questions Attempted: ${attempted}`,
+      10,
+      startY + lineHeight * 2
+    );
+    doc.text(
+      `Number of Wrong Questions: ${wrongAnswers}`,
+      10,
+      startY + lineHeight * 3
+    );
+    doc.text(
+      `Negative Marking Ratio: ${negativeRatio}`,
+      10,
+      startY + lineHeight * 4
+    );
+    doc.text(`Final Score: ${a6}`, 10, startY + lineHeight * 5);
+  
+    // Draw a line above the final score
+    doc.setLineWidth(0.5);
+    doc.line(10, startY + lineHeight * 6 + 5, 200, startY + lineHeight * 6 + 5); // Horizontal line
+  
+    // Add a thank you note
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(14);
+    doc.text(
+      "Thank you for using the Negative Marking Calculator!",
+      10,
+      startY + lineHeight * 7 + 10
+    );
+  
+    // Save the PDF
+    doc.save("negative_marking_calculator_result.pdf");
+  
+    // Close the modal after download
+    closeModal();
+  }
+  
