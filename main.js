@@ -110,15 +110,19 @@ function closeModal() {
   
   function downloadResult() {
     const { jsPDF } = window.jspdf; // Access jsPDF from the window object
+    const currentDateTime = new Date().toLocaleString(); // Current date and time
     const totalQuestions = document.getElementById("a1").value;
-    const maxMarks = document.getElementById("b1").value;
+    const maxMarks = parseFloat(document.getElementById("b1").value); // Parse as float
     const attempted = document.getElementById("a2").value;
     const wrongAnswers = document.getElementById("a4").value;
     const negativeRatio = document.getElementById("a5").options[
       document.getElementById("a5").selectedIndex
     ].text; // Get the text of the selected option
-    const a6 = document.getElementById("a6").innerText;
+    const finalScore = parseFloat(document.getElementById("a6").textContent); // Parse as float
   
+     // Calculate percentage
+   const percentage = (finalScore / maxMarks) * 100;
+
     const doc = new jsPDF();
     // Set title
     doc.setFont("helvetica", "bold");
@@ -154,7 +158,13 @@ function closeModal() {
       10,
       startY + lineHeight * 4
     );
-    doc.text(`Final Score: ${a6}`, 10, startY + lineHeight * 5);
+    doc.text(`Final Score: ${finalScore}`, 10, startY + lineHeight * 5);
+
+    doc.text(
+      `Percentage: ${percentage.toFixed(2)}%`,
+      10,
+      startY + lineHeight * 6
+    ); // Add percentage
   
     // Draw a line above the final score
     doc.setLineWidth(0.5);
@@ -163,11 +173,23 @@ function closeModal() {
     // Add a thank you note
     doc.setFont("helvetica", "italic");
     doc.setFontSize(14);
-    doc.text(
-      "Thank you for using the Negative Marking Calculator!",
-      10,
-      startY + lineHeight * 7 + 10
-    );
+    doc.setTextColor(100, 100, 100);
+    const thankYouY = 110; // Y position for the thank you note
+    doc.text("Thank you for using the Negative Marking Calculator!", 10, thankYouY);
+
+    // Add the designer's credit below the line
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text("Design and developed by Saham Alam", 10, thankYouY + 10); // Position below the line
+  
+  
+  
+  // Add the current date and time at the bottom left
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 10; // Margin from the bottom
+    const dateY = pageHeight - margin; // Y position for the date
+    doc.text(`Date & Time: ${currentDateTime}`, 10, dateY); // X position is 10 for left alignment
   
     // Save the PDF
     doc.save("negative_marking_calculator_result.pdf");
