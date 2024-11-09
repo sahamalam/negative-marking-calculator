@@ -111,8 +111,8 @@ function closeModal() {
   function downloadResult() {
     const { jsPDF } = window.jspdf; // Access jsPDF from the window object
     // Prompt for username and course name
-  username = prompt("Please enter your name:");
-  courseName = prompt("Please enter the exam/ course name:");
+    username = prompt("Please enter your name:");
+    courseName = prompt("Please enter the exam name:");
 
   // Check if the user provided both inputs
   if (!username || !courseName) {
@@ -134,57 +134,89 @@ function closeModal() {
 
     const doc = new jsPDF();
     // Set title
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(24);
-    doc.text("Negative Marking Calculator Results", 105, 20, { align: "center" });
-  
-    // Draw a line under the title
-    doc.setLineWidth(0.5);
-    doc.line(10, 25, 200, 25); // Horizontal line
-  
-    // Set font for the body text
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(16);
-  
-    // Add content with some spacing
-    const startY = 30; // Starting Y position for the text
-    const lineHeight = 10; // Space between lines
-  
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Name: ${username}`, 10, startY);
-    doc.text(`Exam/ Course: ${courseName}`, 10, startY + lineHeight);
-    doc.text(`Total Questions: ${totalQuestions}`, 10, startY + lineHeight * 2);
-    doc.text(`Maximum Marks: ${maxMarks}`, 10, startY + lineHeight * 3);
-    doc.text(`Total Questions Attempted: ${attempted}`, 10, startY + lineHeight * 4);
-    doc.text(`Number of Wrong Questions: ${wrongAnswers}`, 10, startY + lineHeight * 5);
-    doc.text(`Negative Marking Ratio: ${negativeRatio}`, 10, startY + lineHeight * 6);
-    doc.text(`Final Score: ${finalScore.toFixed(2)}`, 10, startY + lineHeight * 7);
-    doc.text(`Percentage: ${percentage.toFixed(2)}%`, 10, startY + lineHeight * 8);
+doc.setFont("helvetica", "bold");
+doc.setFontSize(24);
+doc.setTextColor(0, 0, 0);
+doc.text("Negative Marking Calculator Results", 105, 20, { align: "center" });
 
-  // Draw a line above the final score
-    doc.setLineWidth(0.5);
-    doc.line(10, startY + lineHeight * 8 + 5, 200, startY + lineHeight * 8 + 5); // Horizontal line
+// Draw a line under the title
+doc.setLineWidth(0.5);
+doc.line(10, 25, 200, 25); // Horizontal line
 
-    // Add a thank you note
-    doc.setFont("helvetica", "italic");
-    doc.setFontSize(14);
-    doc.setTextColor(100, 100, 100);
-    const thankYouY = startY + lineHeight * 9; // Y position for the thank you note
-    doc.text("Thank you for using the Negative Marking Calculator!", 10, thankYouY);
+// Set font for the body text
+doc.setFont("helvetica", "normal");
+doc.setFontSize(14);
 
-    // Add the designer's credit below the line
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.text("Design and developed by Saham Alam", 10, thankYouY + 10); // Position below the line
-  
-  
-  
-  // Add the current date and time at the bottom left
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 10; // Margin from the bottom
-    const dateY = pageHeight - margin; // Y position for the date
-    doc.text(`Date & Time: ${currentDateTime}`, 10, dateY); // X position is 10 for left alignment
+// User information (Username and Course) - Display separately
+doc.setFont("helvetica", "bold");
+doc.setTextColor(0, 0, 0);
+doc.text(`Name:`, 10, 35);
+doc.setFont("helvetica", "normal");
+doc.text(username, 40, 35);
+
+doc.setFont("helvetica", "bold");
+doc.text(`Exam:`, 10, 45);
+doc.setFont("helvetica", "normal");
+doc.text(courseName, 40, 45);
+
+// Table settings (starting below the user info)
+const startX = 10; // Starting X position
+const startY = 55; // Starting Y position (moved down to avoid overlap with user info)
+const fieldWidth = 80; // Width for the "Field" column
+const valueWidth = 110; // Width for the "Value" column
+const cellHeight = 10; // Height of each table row
+
+// Data rows (excluding Username and Course)
+const rows = [
+  { field: "Total Questions", value: totalQuestions },
+  { field: "Maximum Marks", value: maxMarks },
+  { field: "Total Questions Attempted", value: attempted },
+  { field: "Number of Wrong Questions", value: wrongAnswers },
+  { field: "Negative Marking Ratio", value: negativeRatio },
+  { field: "Final Score", value: finalScore.toFixed(2) },
+  { field: "Percentage", value: `${percentage.toFixed(2)}%` },
+];
+
+let currentY = startY;
+
+// Loop through data rows and draw them
+rows.forEach((row, index) => {
+  // Set alternating row colors
+  doc.setFillColor(index % 2 === 0 ? 255 : 245); // White and light gray
+  doc.rect(startX, currentY, 190, cellHeight, "F"); // Draw row background
+
+  // Set text color
+  doc.setTextColor(0, 0, 0);
+
+  // Add text in cells
+  doc.text(row.field + ":", startX + 5, currentY + 7); // Display field name with a colon
+  doc.text(row.value.toString(), startX + fieldWidth + 10, currentY + 7); // Display value text
+
+  currentY += cellHeight; // Move to the next row
+});
+
+// Draw a line above the thank you note
+doc.setLineWidth(0.5);
+doc.line(10, currentY + 5, 200, currentY + 5); // Horizontal line
+
+// Add a thank you note
+doc.setFont("helvetica", "italic");
+doc.setFontSize(14);
+doc.setTextColor(100, 100, 100);
+currentY += 10;
+doc.text("Thank you for using the Negative Marking Calculator!", 10, currentY);
+
+// Add the designer's credit below the line
+doc.setFont("helvetica", "normal");
+doc.setFontSize(12);
+doc.setTextColor(0, 0, 0);
+doc.text("Design and developed by Saham Alam", 10, currentY + 10);
+
+// Add the current date and time at the bottom left
+const pageHeight = doc.internal.pageSize.getHeight();
+const margin = 10; // Margin from the bottom
+const dateY = pageHeight - margin; // Y position for the date
+doc.text(`Date & Time: ${currentDateTime}`, 10, dateY); // X position is 10 for left alignment
   
     // Save the PDF
     doc.save("negative_marking_calculator_result.pdf");
