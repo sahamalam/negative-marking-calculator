@@ -110,6 +110,15 @@ function closeModal() {
   
   function downloadResult() {
     const { jsPDF } = window.jspdf; // Access jsPDF from the window object
+    // Prompt for username and course name
+  username = prompt("Please enter your name:");
+  courseName = prompt("Please enter the exam/ course name:");
+
+  // Check if the user provided both inputs
+  if (!username || !courseName) {
+      alert("Both name and eaxm/ course name are required to download result sheet and see result.");
+      return; // Exit if the user didn't provide the required information
+  }
     const currentDateTime = new Date().toLocaleString(); // Current date and time
     const totalQuestions = document.getElementById("a1").value;
     const maxMarks = parseFloat(document.getElementById("b1").value); // Parse as float
@@ -141,40 +150,26 @@ function closeModal() {
     const startY = 30; // Starting Y position for the text
     const lineHeight = 10; // Space between lines
   
-    doc.text(`Total Questions: ${totalQuestions}`, 10, startY);
-    doc.text(`Maximum Marks: ${maxMarks}`, 10, startY + lineHeight);
-    doc.text(
-      `Total Questions Attempted: ${attempted}`,
-      10,
-      startY + lineHeight * 2
-    );
-    doc.text(
-      `Number of Wrong Questions: ${wrongAnswers}`,
-      10,
-      startY + lineHeight * 3
-    );
-    doc.text(
-      `Negative Marking Ratio: ${negativeRatio}`,
-      10,
-      startY + lineHeight * 4
-    );
-    doc.text(`Final Score: ${finalScore}`, 10, startY + lineHeight * 5);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Name: ${username}`, 10, startY);
+    doc.text(`Exam/ Course: ${courseName}`, 10, startY + lineHeight);
+    doc.text(`Total Questions: ${totalQuestions}`, 10, startY + lineHeight * 2);
+    doc.text(`Maximum Marks: ${maxMarks}`, 10, startY + lineHeight * 3);
+    doc.text(`Total Questions Attempted: ${attempted}`, 10, startY + lineHeight * 4);
+    doc.text(`Number of Wrong Questions: ${wrongAnswers}`, 10, startY + lineHeight * 5);
+    doc.text(`Negative Marking Ratio: ${negativeRatio}`, 10, startY + lineHeight * 6);
+    doc.text(`Final Score: ${finalScore.toFixed(2)}`, 10, startY + lineHeight * 7);
+    doc.text(`Percentage: ${percentage.toFixed(2)}%`, 10, startY + lineHeight * 8);
 
-    doc.text(
-      `Percentage: ${percentage.toFixed(2)}%`,
-      10,
-      startY + lineHeight * 6
-    ); // Add percentage
-  
-    // Draw a line above the final score
+  // Draw a line above the final score
     doc.setLineWidth(0.5);
-    doc.line(10, startY + lineHeight * 6 + 5, 200, startY + lineHeight * 6 + 5); // Horizontal line
-  
+    doc.line(10, startY + lineHeight * 8 + 5, 200, startY + lineHeight * 8 + 5); // Horizontal line
+
     // Add a thank you note
     doc.setFont("helvetica", "italic");
     doc.setFontSize(14);
     doc.setTextColor(100, 100, 100);
-    const thankYouY = 110; // Y position for the thank you note
+    const thankYouY = startY + lineHeight * 9; // Y position for the thank you note
     doc.text("Thank you for using the Negative Marking Calculator!", 10, thankYouY);
 
     // Add the designer's credit below the line
@@ -198,3 +193,6 @@ function closeModal() {
     closeModal();
   }
   
+  // Global variables to store username and course name
+let username = '';
+let courseName = '';
