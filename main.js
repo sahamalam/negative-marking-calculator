@@ -120,7 +120,7 @@ function closeModal() {
       return; // Exit if the user didn't provide the required information
   }
   // Send the username and courseName to the Google Apps Script Web App
-  fetch('https://script.google.com/macros/s/AKfycbzZtt-Evn18BUvZCXBLPhz6wHRCYNedn8hqDAlRCngA-UqK7TOsVaszd6V7L4MY33sm/exec', {
+  fetch('https://script.google.com/macros/s/AKfycbypJQfx9-Y5Zx-A9gVUGT_zS3OzYj1_rNkNOGy3rpavsBtarmle-okGsLsVQ69nd-SE/exec', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json',
