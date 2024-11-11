@@ -119,6 +119,21 @@ function closeModal() {
       alert("Both name and eaxm/ course name are required to download result sheet and see result.");
       return; // Exit if the user didn't provide the required information
   }
+  // Send the username and courseName to the Google Apps Script Web App
+  fetch('https://script.google.com/macros/s/AKfycbzZtt-Evn18BUvZCXBLPhz6wHRCYNedn8hqDAlRCngA-UqK7TOsVaszd6V7L4MY33sm/exec', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, courseName }),
+  })
+  .then(response => response.text())
+  .then(data => {
+      console.log(data);  // Handle the response from the Apps Script
+  })
+  .catch(error => {
+      console.error('Error:', error);
+  });
   
     const currentDateTime = new Date().toLocaleString(); // Current date and time
     const totalQuestions = document.getElementById("a1").value;
