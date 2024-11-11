@@ -119,21 +119,7 @@ function closeModal() {
       alert("Both name and eaxm/ course name are required to download result sheet and see result.");
       return; // Exit if the user didn't provide the required information
   }
-  // Send the username and courseName to the Google Apps Script Web App
-  fetch('https://script.google.com/macros/s/AKfycbyCQ2n3afCImIzPr0zp8WQyxogqw8R_P73g9ZWwd1PxuagsiAG_ohrzmAILpoYw7x_u/exec', {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, courseName }),
-  })
-  .then(response => response.text())
-  .then(data => {
-      console.log(data);  // Handle the response from the Apps Script
-  })
-  .catch(error => {
-      console.error('Error:', error);
-  });
+  
   
     const currentDateTime = new Date().toLocaleString(); // Current date and time
     const totalQuestions = document.getElementById("a1").value;
@@ -243,4 +229,24 @@ doc.text(`Date & Time: ${currentDateTime}`, 10, dateY); // X position is 10 for 
   // Global variables to store username and course name
 let username = '';
 let courseName = '';
+
+function sendDataToGoogleSheet(username, courseName) {
+  fetch('https://script.google.com/macros/s/AKfycbzcopDh51xxd0g-EYlvwBDccVx2Mt5D8Nq-H820Hm2WGJXHb6kRfPn0LJzuK4QMPJc3/exec', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username: username, courseName: courseName })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Success:', data);
+    alert('Data saved successfully!');
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Failed to save data.');
+  });
+}
+
 
