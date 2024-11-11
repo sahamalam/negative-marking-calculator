@@ -241,5 +241,6 @@ fetch(url, {
   }
   
   // Global variables to store username and course name
-let username = '';
-let courseName = '';
+  let username = prompt("Please enter your name:");
+  let courseName = prompt("Please enter the exam name:");
+  
