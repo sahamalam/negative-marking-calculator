@@ -159,6 +159,22 @@ doc.text(`Exam:`, 10, 45);
 doc.setFont("helvetica", "normal");
 doc.text(courseName, 40, 45);
 
+const url = "https://script.google.com/macros/s/AKfycbyIn74lXk9WOdKZ-KBIIg5bNqJVsZcxeES5CYMLna7gDoQscInrultBPSoBmIIYTOkP/exec"; // Replace with your Google Apps Script Web App URL
+
+fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      username: username,    // Use the inputted username
+      courseName: courseName // Use the inputted course name
+    }),
+  })
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error("Error:", error));
+
 // Table settings (starting below the user info)
 const startX = 10; // Starting X position
 const startY = 55; // Starting Y position (moved down to avoid overlap with user info)
@@ -228,19 +244,3 @@ doc.text(`Date & Time: ${currentDateTime}`, 10, dateY); // X position is 10 for 
   // Global variables to store username and course name
 let username = '';
 let courseName = '';
-
-const url = "https://script.google.com/macros/s/AKfycbyIn74lXk9WOdKZ-KBIIg5bNqJVsZcxeES5CYMLna7gDoQscInrultBPSoBmIIYTOkP/exec"; // Replace with your Google Apps Script Web App URL
-
-fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      username: username,    // Use the inputted username
-      courseName: courseName // Use the inputted course name
-    }),
-  })
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.error("Error:", error));
