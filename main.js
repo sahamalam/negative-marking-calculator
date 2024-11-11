@@ -237,7 +237,7 @@ fetch(url, {
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
-    username: "SampleUser",
+    username: "",
     courseName: "SampleCourse"
   }),
 })
