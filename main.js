@@ -216,7 +216,17 @@ doc.text("Design and developed by Saham Alam", 10, currentY + 10);
 const pageHeight = doc.internal.pageSize.getHeight();
 const margin = 10; // Margin from the bottom
 const dateY = pageHeight - margin; // Y position for the date
-doc.text(`Date & Time: ${currentDateTime}`, 10, dateY); // X position is 10 for left alignment
+doc.text(`Date & Time: ${currentDateTime}`, 10, dateY); // X position is 10 for left alignment  
+    // Save the PDF
+    doc.save("negative_marking_calculator_result.pdf");
+  
+    // Close the modal after download
+    closeModal();
+  }
+  
+  // Global variables to store username and course name
+let username = '';
+let courseName = '';
 
 const url = "https://script.google.com/macros/s/AKfycbyIn74lXk9WOdKZ-KBIIg5bNqJVsZcxeES5CYMLna7gDoQscInrultBPSoBmIIYTOkP/exec"; // Replace with your Google Apps Script Web App URL
 
@@ -233,14 +243,3 @@ fetch(url, {
   .then(response => response.json())
   .then(data => console.log(data))
   .catch(error => console.error("Error:", error));
-  
-    // Save the PDF
-    doc.save("negative_marking_calculator_result.pdf");
-  
-    // Close the modal after download
-    closeModal();
-  }
-  
-  // Global variables to store username and course name
-let username = '';
-let courseName = '';
