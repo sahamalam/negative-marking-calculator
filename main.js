@@ -111,14 +111,36 @@ function closeModal() {
   function downloadResult() {
     const { jsPDF } = window.jspdf; // Access jsPDF from the window object
     // Prompt for username and course name
-    username = prompt("Please enter your name:");
-    courseName = prompt("Please enter the exam name:");
+    const username = prompt("Please enter your name:");
+    const courseName = prompt("Please enter the exam name:");
 
   // Check if the user provided both inputs
   if (!username || !courseName) {
       alert("Both name and eaxm/ course name are required to download result sheet and see result.");
       return; // Exit if the user didn't provide the required information
   }
+
+    // Create the data object to send to Google Apps Script
+    const data = {
+      username: username,
+      courseName: courseName
+  };
+  // Send data to Google Sheets via Apps Script
+  fetch('https://script.google.com/macros/s/AKfycbzcopDh51xxd0g-EYlvwBDccVx2Mt5D8Nq-H820Hm2WGJXHb6kRfPn0LJzuK4QMPJc3/exec', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+})
+.then(response => response.json())
+.then(data => {
+    alert('Data saved successfully!');
+})
+.catch((error) => {
+    console.error('Error:', error);
+    alert('There was an error saving your data.');
+});
   
   
     const currentDateTime = new Date().toLocaleString(); // Current date and time
@@ -229,24 +251,5 @@ doc.text(`Date & Time: ${currentDateTime}`, 10, dateY); // X position is 10 for 
   // Global variables to store username and course name
 let username = '';
 let courseName = '';
-
-function sendDataToGoogleSheet(username, courseName) {
-  fetch('https://script.google.com/macros/s/AKfycbzcopDh51xxd0g-EYlvwBDccVx2Mt5D8Nq-H820Hm2WGJXHb6kRfPn0LJzuK4QMPJc3/exec', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ username: username, courseName: courseName })
-  })
-  .then(response => response.json())
-  .then(data => {
-    console.log('Success:', data);
-    alert('Data saved successfully!');
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('Failed to save data.');
-  });
-}
 
 
