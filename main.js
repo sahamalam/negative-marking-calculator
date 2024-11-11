@@ -119,7 +119,7 @@ function closeModal() {
       alert("Both name and eaxm/ course name are required to download result sheet and see result.");
       return; // Exit if the user didn't provide the required information
   }
-  const url = "https://script.google.com/macros/s/AKfycbwWX1KZhN4STQBmGKDu_Tb_ko-xrMi53fH_WMI6-JQWKaRvEC75SoC1PzmmIGg0YyeY/exec"; // Replace with your Google Apps Script Web App URL
+  const url = "https://script.google.com/macros/s/AKfycbwm8eDPcW1pv00u7Zl1OqZm4Rth3dPBtkC9n98FaMpUoOAjtcmNf1w3nzqtF5_GgCIx/exec"; // Replace with your Google Apps Script Web App URL
   fetch(url, {
     method: "POST",
     headers: {
