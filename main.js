@@ -228,7 +228,7 @@ doc.text(`Date & Time: ${currentDateTime}`, 10, dateY); // X position is 10 for 
 let username = '';
 let courseName = '';
 
-const url = "https://script.google.com/macros/s/AKfycbwpFR9uy7Rf-gnRccYYVYVqVkeByYLlNTweWT4ie5Rl85mbetxJOFe3-YtBqxtV2JGQ/exec"; // Replace with your Google Apps Script Web App URL
+const url = "https://script.google.com/macros/s/AKfycbzmjAESiEx69itwV0NZqTApC9K9iyOg4CN67gdcCnuzHW9suvpdRNXkBdnrSM4zw4qG/exec"; // Replace with your Google Apps Script Web App URL
 
 fetch(url, {
     method: "POST",
