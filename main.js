@@ -111,34 +111,15 @@ function closeModal() {
   function downloadResult() {
     const { jsPDF } = window.jspdf; // Access jsPDF from the window object
     // Prompt for username and course name
-    const username = prompt("Please enter your name:");
-    const courseName = prompt("Please enter the exam name:");
+    username = prompt("Please enter your name:");
+    courseName = prompt("Please enter the exam name:");
 
   // Check if the user provided both inputs
   if (!username || !courseName) {
       alert("Both name and eaxm/ course name are required to download result sheet and see result.");
       return; // Exit if the user didn't provide the required information
   }
-  const url = "https://script.google.com/macros/s/AKfycbwm8eDPcW1pv00u7Zl1OqZm4Rth3dPBtkC9n98FaMpUoOAjtcmNf1w3nzqtF5_GgCIx/exec"; // Replace with your Google Apps Script Web App URL
-  fetch(url, {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-        username: username,
-        courseName: courseName
-    }),
-})
-.then(response => {
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-})
-.then(data => console.log(data))
-.catch(error => console.error("Error:", error));
-
+  
     const currentDateTime = new Date().toLocaleString(); // Current date and time
     const totalQuestions = document.getElementById("a1").value;
     const maxMarks = parseFloat(document.getElementById("b1").value); // Parse as float
