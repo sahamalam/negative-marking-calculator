@@ -232,15 +232,15 @@ let courseName = '';
 const url = "https://script.google.com/macros/s/AKfycbyIn74lXk9WOdKZ-KBIIg5bNqJVsZcxeES5CYMLna7gDoQscInrultBPSoBmIIYTOkP/exec"; // Replace with your Google Apps Script Web App URL
 
 fetch(url, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    username: "",
-    courseName: "SampleCourse"
-  }),
-})
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      username: username,    // Use the inputted username
+      courseName: courseName // Use the inputted course name
+    }),
+  })
   .then(response => response.json())
   .then(data => console.log(data))
   .catch(error => console.error("Error:", error));
