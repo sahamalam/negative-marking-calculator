@@ -119,6 +119,26 @@ function closeModal() {
       alert("Both name and eaxm/ course name are required to download result sheet and see result.");
       return; // Exit if the user didn't provide the required information
   }
+  const url = "https://script.google.com/macros/s/AKfycbzmjAESiEx69itwV0NZqTApC9K9iyOg4CN67gdcCnuzHW9suvpdRNXkBdnrSM4zw4qG/exec"; // Replace with your Google Apps Script Web App URL
+  fetch(url, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+        username: username,
+        courseName: courseName
+    }),
+})
+.then(response => {
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+})
+.then(data => console.log(data))
+.catch(error => console.error("Error:", error));
+
     const currentDateTime = new Date().toLocaleString(); // Current date and time
     const totalQuestions = document.getElementById("a1").value;
     const maxMarks = parseFloat(document.getElementById("b1").value); // Parse as float
@@ -228,18 +248,3 @@ doc.text(`Date & Time: ${currentDateTime}`, 10, dateY); // X position is 10 for 
 let username = '';
 let courseName = '';
 
-const url = "https://script.google.com/macros/s/AKfycbzmjAESiEx69itwV0NZqTApC9K9iyOg4CN67gdcCnuzHW9suvpdRNXkBdnrSM4zw4qG/exec"; // Replace with your Google Apps Script Web App URL
-
-fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      username: username,    // Use the inputted username
-      courseName: courseName // Use the inputted course name
-    }),
-  })
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.error("Error:", error));
