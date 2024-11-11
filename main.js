@@ -111,8 +111,8 @@ function closeModal() {
   function downloadResult() {
     const { jsPDF } = window.jspdf; // Access jsPDF from the window object
     // Prompt for username and course name
-    const username = prompt("Please enter your name:");
-    const courseName = prompt("Please enter the exam name:");
+    username = prompt("Please enter your name:");
+    courseName = prompt("Please enter the exam name:");
 
   // Check if the user provided both inputs
   if (!username || !courseName) {
