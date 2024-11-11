@@ -220,7 +220,15 @@ doc.text(`Date & Time: ${currentDateTime}`, 10, dateY); // X position is 10 for 
     // Save the PDF
     doc.save("negative_marking_calculator_result.pdf");
 
-    const url = "https://script.google.com/macros/s/AKfycbwpFR9uy7Rf-gnRccYYVYVqVkeByYLlNTweWT4ie5Rl85mbetxJOFe3-YtBqxtV2JGQ/exec"; // Replace with your Google Apps Script Web App URL
+    // Close the modal after download
+    closeModal();
+  }
+  
+  // Global variables to store username and course name
+let username = '';
+let courseName = '';
+
+const url = "https://script.google.com/macros/s/AKfycbwpFR9uy7Rf-gnRccYYVYVqVkeByYLlNTweWT4ie5Rl85mbetxJOFe3-YtBqxtV2JGQ/exec"; // Replace with your Google Apps Script Web App URL
 
 fetch(url, {
     method: "POST",
@@ -235,11 +243,3 @@ fetch(url, {
   .then(response => response.json())
   .then(data => console.log(data))
   .catch(error => console.error("Error:", error));
-  
-    // Close the modal after download
-    closeModal();
-  }
-  
-  // Global variables to store username and course name
-let username = '';
-let courseName = '';
