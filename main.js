@@ -145,7 +145,19 @@ function closeModal() {
     });
   
     // Proceed to generate the PDF
-    const currentDateTime = new Date().toLocaleString();
+    // Proceed to generate the PDF
+    const currentDateTime = new Date().toLocaleString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true // 12-hour format with AM/PM
+    });
+    // Convert AM/PM to uppercase
+    const formattedDateTime = currentDateTime.replace(/(am|pm)/gi, (match) => match.toUpperCase());
+
     const totalQuestions = document.getElementById("a1").value;
     const maxMarks = parseFloat(document.getElementById("b1").value);
     const attempted = document.getElementById("a2").value;
@@ -199,7 +211,7 @@ const pageHeight = doc.internal.pageSize.getHeight();
 const margin = 10; // Margin from the bottom
 const dateY = pageHeight - margin; // Y position for the date
 doc.setTextColor(0, 0, 0);
-doc.text(`Date & Time: ${currentDateTime}`, 10, dateY); // X position is 10 for left alignment  
+doc.text(`Date & Time: ${formattedDateTime}`, 10, dateY); // X position is 10 for left alignment  
     doc.save("negative_marking_calculator_result.pdf");
   
     // Close the modal after download
