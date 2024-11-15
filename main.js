@@ -109,121 +109,103 @@ function closeModal() {
   }
   
   function downloadResult() {
-    const { jsPDF } = window.jspdf; // Access jsPDF from the window object
+    const { jsPDF } = window.jspdf;
+  
     // Prompt for username and course name
     username = prompt("Please enter your name:");
     courseName = prompt("Please enter the exam name:");
-
-  // Check if the user provided both inputs
-  if (!username || !courseName) {
-      alert("Both name and eaxm/ course name are required to download result sheet and see result.");
-      return; // Exit if the user didn't provide the required information
-  }
   
-    const currentDateTime = new Date().toLocaleString(); // Current date and time
+    // Check if the user provided both inputs
+    if (!username || !courseName) {
+      alert("Both name and exam/course name are required to download the result sheet and see the result.");
+      return; // Exit if the user didn't provide the required information
+    }
+  
+    // Define your Google Apps Script URL
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbw-CE0H-x3rz_T1OBF1ky7He61Fo8rSR9evwpHl_CMikePYNqq7B4XcnNKU14CUyITq/exec'; // Replace with your actual script URL
+  
+    // Prepare the data payload to be sent
+    const payload = {
+      username: username,
+      courseName: courseName
+    };
+  
+    // Send the data to Google Sheets
+    fetch(scriptURL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    }).then(() => {
+      console.log("Data successfully sent to Google Sheets");
+    }).catch(error => {
+      console.error("Error sending data to Google Sheets:", error);
+    });
+  
+    // Proceed to generate the PDF
+    const currentDateTime = new Date().toLocaleString();
     const totalQuestions = document.getElementById("a1").value;
-    const maxMarks = parseFloat(document.getElementById("b1").value); // Parse as float
+    const maxMarks = parseFloat(document.getElementById("b1").value);
     const attempted = document.getElementById("a2").value;
     const wrongAnswers = document.getElementById("a4").value;
-    const negativeRatio = document.getElementById("a5").options[
-      document.getElementById("a5").selectedIndex
-    ].text; // Get the text of the selected option
-    const finalScore = parseFloat(document.getElementById("a6").textContent); // Parse as float
+    const negativeRatio = document.getElementById("a5").options[document.getElementById("a5").selectedIndex].text;
+    const finalScore = parseFloat(document.getElementById("a6").textContent);
+    const percentage = (finalScore / maxMarks) * 100;
   
-     // Calculate percentage
-   const percentage = (finalScore / maxMarks) * 100;
-
     const doc = new jsPDF();
-    // Set title
-doc.setFont("helvetica", "bold");
-doc.setFontSize(24);
-doc.setTextColor(0, 0, 0);
-doc.text("Negative Marking Calculator Results", 105, 20, { align: "center" });
-
-// Draw a line under the title
-doc.setLineWidth(0.5);
-doc.line(10, 25, 200, 25); // Horizontal line
-
-// Set font for the body text
-doc.setFont("helvetica", "normal");
-doc.setFontSize(14);
-
-// User information (Username and Course) - Display separately
-doc.setFont("helvetica", "bold");
-doc.setTextColor(0, 0, 0);
-doc.text(`Name:`, 10, 35);
-doc.setFont("helvetica", "normal");
-doc.text(username, 40, 35);
-
-doc.setFont("helvetica", "bold");
-doc.text(`Exam:`, 10, 45);
-doc.setFont("helvetica", "normal");
-doc.text(courseName, 40, 45);
-
-// Table settings (starting below the user info)
-const startX = 10; // Starting X position
-const startY = 55; // Starting Y position (moved down to avoid overlap with user info)
-const fieldWidth = 80; // Width for the "Field" column
-const valueWidth = 110; // Width for the "Value" column
-const cellHeight = 10; // Height of each table row
-
-// Data rows (excluding Username and Course)
-const rows = [
-  { field: "Total Questions", value: totalQuestions },
-  { field: "Maximum Marks", value: maxMarks },
-  { field: "Total Questions Attempted", value: attempted },
-  { field: "Number of Wrong Questions", value: wrongAnswers },
-  { field: "Negative Marking Ratio", value: negativeRatio },
-  { field: "Final Score", value: finalScore.toFixed(2) },
-  { field: "Percentage", value: `${percentage.toFixed(2)}%` },
-];
-
-let currentY = startY;
-
-// Loop through data rows and draw them
-rows.forEach((row, index) => {
-  // Set alternating row colors
-  doc.setFillColor(index % 2 === 0 ? 255 : 245); // White and light gray
-  doc.rect(startX, currentY, 190, cellHeight, "F"); // Draw row background
-
-  // Set text color
-  doc.setTextColor(0, 0, 0);
-
-  // Add text in cells
-  doc.text(row.field + ":", startX + 5, currentY + 7); // Display field name with a colon
-  doc.text(row.value.toString(), startX + fieldWidth + 10, currentY + 7); // Display value text
-
-  currentY += cellHeight; // Move to the next row
-});
-
-// Draw a line above the thank you note
-doc.setLineWidth(0.5);
-doc.line(10, currentY + 5, 200, currentY + 5); // Horizontal line
-
-// Add a thank you note
-doc.setFont("helvetica", "italic");
-doc.setFontSize(14);
-doc.setTextColor(100, 100, 100);
-currentY += 10;
-doc.text("Thank you for using the Negative Marking Calculator!", 10, currentY);
-
-// Add the designer's credit below the line
-doc.setFont("helvetica", "normal");
-doc.setFontSize(12);
-doc.setTextColor(0, 0, 0);
-doc.text("Design and developed by Saham Alam", 10, currentY + 10);
-
-// Add the current date and time at the bottom left
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(24);
+    doc.text("Negative Marking Calculator Results", 105, 20, { align: "center" });
+    doc.setLineWidth(0.5);
+    doc.line(10, 25, 200, 25);
+  
+    doc.setFont("special-elite", "normal");
+    doc.setFontSize(14);
+    doc.text(`Name: ${username}`, 10, 35);
+    doc.text(`Exam: ${courseName}`, 10, 45);
+  
+    const rows = [
+      { field: "Total Questions", value: totalQuestions },
+      { field: "Maximum Marks", value: maxMarks },
+      { field: "Total Questions Attempted", value: attempted },
+      { field: "Number of Wrong Questions", value: wrongAnswers },
+      { field: "Negative Marking Ratio", value: negativeRatio },
+      { field: "Final Score", value: finalScore.toFixed(2) },
+      { field: "Percentage", value: `${percentage.toFixed(2)}%` }
+    ];
+  
+    let startY = 55;
+    rows.forEach((row, index) => {
+      doc.setFillColor(index % 2 === 0 ? 255 : 245);
+      doc.rect(10, startY, 190, 10, 'F');
+      doc.setTextColor(0, 0, 0);
+      doc.text(`${row.field}:`, 15, startY + 7);
+      doc.text(row.value.toString(), 100, startY + 7);
+      startY += 10;
+    });
+  
+    doc.line(10, startY + 5, 200, startY + 5);
+    doc.setFontSize(14);
+    doc.setTextColor(100, 100, 100);
+    startY += 10;
+    doc.text("Thank you for using the Negative Marking Calculator!", 10, startY);
+  
+    doc.setFontSize(12);
+    doc.text("Developed by Saham Alam", 10, startY + 10);
+    // Add the current date and time at the bottom left
 const pageHeight = doc.internal.pageSize.getHeight();
 const margin = 10; // Margin from the bottom
 const dateY = pageHeight - margin; // Y position for the date
+doc.setTextColor(0, 0, 0);
 doc.text(`Date & Time: ${currentDateTime}`, 10, dateY); // X position is 10 for left alignment  
-    // Save the PDF
     doc.save("negative_marking_calculator_result.pdf");
-
+  
     // Close the modal after download
     closeModal();
   }
+  
   
   // Global variables to store username and course name
 let username = '';
