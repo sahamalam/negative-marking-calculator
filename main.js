@@ -110,110 +110,162 @@ function closeModal() {
   
   function downloadResult() {
     const { jsPDF } = window.jspdf;
-  
+
     // Prompt for username and course name
-    username = prompt("Please enter your name:");
-    courseName = prompt("Please enter the exam name:");
-  
+    const username = prompt("Please enter your name:");
+    const courseName = prompt("Please enter the exam name:");
+
     // Check if the user provided both inputs
     if (!username || !courseName) {
-      alert("Both name and exam/course name are required to download the result sheet and see the result.");
-      return; // Exit if the user didn't provide the required information
+        alert("Both name and exam/course name are required to download the result sheet.");
+        return;
     }
-  
-    // Define your Google Apps Script URL
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbw-CE0H-x3rz_T1OBF1ky7He61Fo8rSR9evwpHl_CMikePYNqq7B4XcnNKU14CUyITq/exec'; // Replace with your actual script URL
-  
-    // Prepare the data payload to be sent
-    const payload = {
-      username: username,
-      courseName: courseName
-    };
-  
-    // Send the data to Google Sheets
-    fetch(scriptURL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    }).then(() => {
-      console.log("Data successfully sent to Google Sheets");
-    }).catch(error => {
-      console.error("Error sending data to Google Sheets:", error);
-    });
-  
-    // Proceed to generate the PDF
-    // Proceed to generate the PDF
-    const currentDateTime = new Date().toLocaleString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: true // 12-hour format with AM/PM
-    });
-    // Convert AM/PM to uppercase
-    const formattedDateTime = currentDateTime.replace(/(am|pm)/gi, (match) => match.toUpperCase());
+     // Google Apps Script URL (Replace with your actual script URL)
+     const scriptURL = 'https://script.google.com/macros/s/AKfycbw-CE0H-x3rz_T1OBF1ky7He61Fo8rSR9evwpHl_CMikePYNqq7B4XcnNKU14CUyITq/exec';
+     const payload = { username: username, courseName: courseName };
+ 
+     // Send the data to Google Sheets
+     fetch(scriptURL, {
+         method: 'POST',
+         mode: 'no-cors',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify(payload)
+     });
 
-    const totalQuestions = document.getElementById("a1").value;
+    // Retrieve score details from the form
+    const totalQuestions = parseInt(document.getElementById("a1").value);
     const maxMarks = parseFloat(document.getElementById("b1").value);
-    const attempted = document.getElementById("a2").value;
-    const wrongAnswers = document.getElementById("a4").value;
+    const attempted = parseInt(document.getElementById("a2").value);
+    const wrongAnswers = parseInt(document.getElementById("a4").value);
     const negativeRatio = document.getElementById("a5").options[document.getElementById("a5").selectedIndex].text;
     const finalScore = parseFloat(document.getElementById("a6").textContent);
     const percentage = (finalScore / maxMarks) * 100;
-  
+    const currentDateTime = new Date().toLocaleString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+
+    // Calculate correct answers and unattempted questions
+    const correctAnswers = attempted - wrongAnswers;
+    const unattempted = totalQuestions - attempted;
+
+    // Ensure the chart data adds up to 100% of total questions
+    const data = [
+        correctAnswers,  // Correct answers count
+        wrongAnswers,    // Incorrect answers count
+        unattempted      // Unattempted questions count
+    ];
+
+    const labels = ['Correct Answers', 'Incorrect Answers', 'Unattempted Questions'];
+    const backgroundColors = ['#4caf50', '#f44336', '#ff9800'];
+
+    // Create jsPDF document
     const doc = new jsPDF();
-    doc.setFont("helvetica", "bold");
+    doc.setFont("times", "bold");
     doc.setFontSize(24);
     doc.text("Negative Marking Calculator Results", 105, 20, { align: "center" });
     doc.setLineWidth(0.5);
     doc.line(10, 25, 200, 25);
-  
-    doc.setFont("special-elite", "normal");
-    doc.setFontSize(14);
+
+    doc.setFont("times", "normal");
+    doc.setFontSize(12);
     doc.text(`Name: ${username}`, 10, 35);
     doc.text(`Exam: ${courseName}`, 10, 45);
-  
+
+    // Display score details
     const rows = [
-      { field: "Total Questions", value: totalQuestions },
-      { field: "Maximum Marks", value: maxMarks },
-      { field: "Total Questions Attempted", value: attempted },
-      { field: "Number of Wrong Questions", value: wrongAnswers },
-      { field: "Negative Marking Ratio", value: negativeRatio },
-      { field: "Final Score", value: finalScore.toFixed(2) },
-      { field: "Percentage", value: `${percentage.toFixed(2)}%` }
+        { field: "Total Questions", value: totalQuestions },
+        { field: "Maximum Marks", value: maxMarks },
+        { field: "Total Questions Attempted", value: attempted },
+        { field: "Number of Wrong Questions", value: wrongAnswers },
+        { field: "Negative Marking Ratio", value: negativeRatio },
+        { field: "Final Score", value: finalScore.toFixed(2) },
+        { field: "Percentage", value: `${percentage.toFixed(2)}%` }
     ];
-  
+
     let startY = 55;
     rows.forEach((row, index) => {
-      doc.setFillColor(index % 2 === 0 ? 255 : 245);
-      doc.rect(10, startY, 190, 10, 'F');
-      doc.setTextColor(0, 0, 0);
-      doc.text(`${row.field}:`, 15, startY + 7);
-      doc.text(row.value.toString(), 100, startY + 7);
-      startY += 10;
+        doc.setFillColor(index % 2 === 0 ? 255 : 245);
+        doc.rect(10, startY, 190, 10, 'F');
+        doc.setTextColor(0, 0, 0);
+        doc.text(`${row.field}:`, 15, startY + 7);
+        doc.text(row.value.toString(), 100, startY + 7);
+        startY += 10;
     });
-  
+
     doc.line(10, startY + 5, 200, startY + 5);
-    doc.setFontSize(14);
-    doc.setTextColor(100, 100, 100);
     startY += 10;
-    doc.text("Thank you for using the Negative Marking Calculator!", 10, startY);
+
+    // Define the canvas for Chart.js
+    const chartCanvas = document.createElement('canvas');
+    chartCanvas.width = 300;
+    chartCanvas.height = 300;
+    const ctx = chartCanvas.getContext('2d');
+
+    // Generate a pie chart
+    const chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: backgroundColors,
+                borderWidth: 0,  // Ensure no border around slices
+            }]
+        },
+        options: {
+            responsive: false,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true }
+            }
+        }
+    });
+
+    setTimeout(() => {
+      const chartImage = chartCanvas.toDataURL('image/png');
+      const chartWidth = 80;
+      const chartHeight = 80;
+      const chartX = (doc.internal.pageSize.getWidth() - chartWidth) / 2;
+      const pieChartY = startY;
   
-    doc.setFontSize(12);
-    doc.text("Developed by Saham Alam", 10, startY + 10);
-    // Add the current date and time at the bottom left
-const pageHeight = doc.internal.pageSize.getHeight();
-const margin = 10; // Margin from the bottom
-const dateY = pageHeight - margin; // Y position for the date
-doc.setTextColor(0, 0, 0);
-doc.text(`Date & Time: ${formattedDateTime}`, 10, dateY); // X position is 10 for left alignment  
-    doc.save("negative_marking_calculator_result.pdf");
+      // Add pie chart to the PDF
+      doc.addImage(chartImage, 'PNG', chartX, pieChartY, chartWidth, chartHeight);
   
+      // Add color labels below the pie chart
+      const labelStartY = pieChartY + chartHeight + 10; // Adjusted Y position below the pie chart
+      const labelX = 10; // Left margin for labels
+      doc.setFontSize(10);
+  
+      // Draw the color labels below the pie chart
+      labels.forEach((label, i) => {
+          // Set color for each label
+          doc.setFillColor(backgroundColors[i]);
+          // Draw a small color box for each label
+          doc.rect(labelX, labelStartY + (i * 10), 4, 4, 'F');
+          // Add text next to the color box
+          doc.text(`${label}: ${data[i]}`, labelX + 6, labelStartY + (i * 10 + 4));
+      });
+  
+      // Footer
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const footerY = pageHeight - 20;
+      doc.setFontSize(10);
+      doc.text("Developed by Saham Alam", 10, footerY);
+      doc.text(`${currentDateTime}`, 165, footerY);
+      doc.text("Thank you for using the Negative Marking Calculator!", 10, pageHeight - 10);
+  
+      // Save PDF
+      doc.save("negative_marking_calculator_result.pdf");
+  }, 1000);
+  
+
+
+
     // Close the modal after download
     closeModal();
   }
