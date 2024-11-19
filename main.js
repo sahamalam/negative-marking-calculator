@@ -63,6 +63,10 @@ function _0x2df0(_0x3506de, _0x4dd340) {
         _0x2abbee = document[_0x3cdcf6(0x1c3)]("a2")[_0x3cdcf6(0x1c5)],
         _0x468332 = document[_0x3cdcf6(0x1c3)]("a4")[_0x3cdcf6(0x1c5)],
         _0x19214d = document[_0x3cdcf6(0x1c3)]("a5")[_0x3cdcf6(0x1c5)];
+
+         // Calculate the penalty marks
+         const penaltyMarks = _0x468332 * (1 / _0x19214d);
+
     // Calculate the result
   var _0x3d271d = _0x2abbee * _0x1a248f - _0x468332 * _0x1a248f - (_0x468332 * _0x1a248f * "1") / _0x19214d;
 
@@ -73,6 +77,9 @@ function _0x2df0(_0x3506de, _0x4dd340) {
 
   // Show the modal
   document.getElementById("resultModal").style.display = "flex";
+
+  // Store penaltyMarks globally (for use in the PDF)
+  window.penaltyMarks = penaltyMarks.toFixed(2);
 });
 
 
@@ -140,6 +147,7 @@ function closeModal() {
     const negativeRatio = document.getElementById("a5").options[document.getElementById("a5").selectedIndex].text;
     const finalScore = parseFloat(document.getElementById("a6").textContent);
     const percentage = (finalScore / maxMarks) * 100;
+    const penaltyMarks = window.penaltyMarks || (wrongAnswers * negativeRatio).toFixed(2);
     const currentDateTime = new Date().toLocaleString('en-GB', {
         day: '2-digit',
         month: '2-digit',
@@ -167,7 +175,7 @@ function closeModal() {
     const doc = new jsPDF();
     doc.setFont("times", "bold");
     doc.setFontSize(24);
-    doc.text("Negative Marking Calculator Results", 105, 20, { align: "center" });
+    doc.text("Negative Marking Calculator Result", 105, 20, { align: "center" });
     doc.setLineWidth(0.5);
     doc.line(10, 25, 200, 25);
 
@@ -183,6 +191,7 @@ function closeModal() {
         { field: "Total Questions Attempted", value: attempted },
         { field: "Number of Wrong Questions", value: wrongAnswers },
         { field: "Negative Marking Ratio", value: negativeRatio },
+        { field: "Penalty Marks", value: penaltyMarks }, // Added Penalty Marks
         { field: "Final Score", value: finalScore.toFixed(2) },
         { field: "Percentage", value: `${percentage.toFixed(2)}%` }
     ];
