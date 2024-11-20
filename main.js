@@ -230,47 +230,53 @@ function closeModal() {
             responsive: false,
             maintainAspectRatio: false,
             plugins: {
-                legend: { display: true }
+                legend: { display: false }
             }
         }
     });
 
     setTimeout(() => {
-      const chartImage = chartCanvas.toDataURL('image/png');
-      const chartWidth = 80;
-      const chartHeight = 80;
-      const chartX = (doc.internal.pageSize.getWidth() - chartWidth) / 2;
-      const pieChartY = startY;
-  
-      // Add pie chart to the PDF
-      doc.addImage(chartImage, 'PNG', chartX, pieChartY, chartWidth, chartHeight);
-  
-      // Add color labels below the pie chart
-      const labelStartY = pieChartY + chartHeight + 10; // Adjusted Y position below the pie chart
-      const labelX = 10; // Left margin for labels
-      doc.setFontSize(10);
-  
-      // Draw the color labels below the pie chart
-      labels.forEach((label, i) => {
-          // Set color for each label
-          doc.setFillColor(backgroundColors[i]);
-          // Draw a small color box for each label
-          doc.rect(labelX, labelStartY + (i * 10), 4, 4, 'F');
-          // Add text next to the color box
-          doc.text(`${label}: ${data[i]}`, labelX + 6, labelStartY + (i * 10 + 4));
-      });
-  
-      // Footer
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const footerY = pageHeight - 20;
-      doc.setFontSize(10);
-      doc.text("Developed by Saham Alam", 10, footerY);
-      doc.text(`${currentDateTime}`, 165, footerY);
-      doc.text("Thank you for using the Negative Marking Calculator!", 10, pageHeight - 10);
-  
-      // Save PDF
-      doc.save("negative_marking_calculator_result.pdf");
-  }, 1000);
+        const chartImage = chartCanvas.toDataURL('image/png');
+        const chartWidth = 50; // Reduced width
+        const chartHeight = 50; // Reduced height
+        const chartX = (doc.internal.pageSize.getWidth() - chartWidth) / 3; // Adjust for alignment
+        const pieChartY = startY;
+    
+        // Add the pie chart to the PDF
+        doc.addImage(chartImage, 'PNG', chartX, pieChartY, chartWidth, chartHeight);
+    
+        // Add a shorter vertical line next to the chart
+        const lineX = chartX + chartWidth + 10; // Position of the vertical line
+        const lineStartY = pieChartY; // Start at the top of the chart
+        const lineEndY = pieChartY + chartHeight; // End slightly below the chart
+        doc.line(lineX, lineStartY, lineX, lineEndY);
+    
+        // Add color labels vertically
+        const labelStartY = lineStartY + 5; // Y position aligned with the chart
+        const labelX = lineX + 5; // X position next to the vertical line
+        doc.setFontSize(10);
+    
+        labels.forEach((label, i) => {
+            // Set color for each label
+            doc.setFillColor(backgroundColors[i]);
+            // Draw a small color box
+            const boxY = labelStartY + (i * 10);
+            doc.rect(labelX, boxY, 4, 4, 'F');
+            // Add the text next to the color box
+            doc.text(`${label}: ${data[i]}`, labelX + 6, boxY + 4);
+        });
+    
+        // Footer
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const footerY = pageHeight - 20;
+        doc.setFontSize(10);
+        doc.text("Developed by Saham Alam", 10, footerY);
+        doc.text(`${currentDateTime}`, 165, footerY);
+        doc.text("Thank you for using the Negative Marking Calculator!", 10, pageHeight - 10);
+    
+        // Save PDF
+        doc.save("negative_marking_calculator_result.pdf");
+    }, 1000);    
   
 
 
