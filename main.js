@@ -171,6 +171,36 @@ function closeModal() {
     const labels = ['Correct Answers', 'Incorrect Answers', 'Unattempted Questions'];
     const backgroundColors = ['#4caf50', '#f44336', '#ff9800'];
 
+     // Recommendations Logic
+     const recommendations = [];
+
+     // 1. Focus on accuracy: If penalty marks are greater than 20% of the final score.
+     if (penaltyMarks > finalScore * 0.2) {
+         recommendations.push(
+             `Focus on accuracy: Your penalty marks (${penaltyMarks}) are greater than 20% of your final score. Attempt only questions you are confident about.`
+         );
+     }
+ 
+     // 2. Spend more time reviewing: If more than 5% of questions are unattempted.
+     if (unattempted / totalQuestions > 0.05) {
+         recommendations.push(
+             `Spend more time reviewing: You left ${unattempted} (${((unattempted / totalQuestions) * 100).toFixed(2)}%) of the questions unattempted.`
+         );
+     }
+ 
+     // 3. Switch focus to unattempted: Calculate realistic percentage boost.
+     const marksPerQuestion = maxMarks / totalQuestions;
+     const realisticBoost = unattempted * marksPerQuestion * 0.8; // Assume 80% success rate.
+     const potentialNewScore = finalScore + realisticBoost;
+     const potentialPercentage = (potentialNewScore / maxMarks) * 100;
+     const percentageBoost = potentialPercentage - percentage;
+ 
+     if (percentageBoost > 1) { // Only suggest if boost is meaningful
+         recommendations.push(
+             `Switch focus to unattempted: Solving ${unattempted} more questions correctly could boost your percentage by approximately ${percentageBoost.toFixed(2)}%.`
+         );
+     }
+
     // Create jsPDF document
     const doc = new jsPDF();
     doc.setFont("times", "bold");
@@ -265,6 +295,29 @@ function closeModal() {
             // Add the text next to the color box
             doc.text(`${label}: ${data[i]}`, labelX + 6, boxY + 4);
         });
+
+        // Add recommendations below the chart
+let recY = pieChartY + chartHeight + 15;
+doc.setFontSize(12);
+doc.setFont("times", "bold");
+doc.text("Recommendations:", 10, recY);
+
+doc.setFont("times", "normal");
+
+// Handle text wrapping for recommendations
+recommendations.forEach((rec, index) => {
+    recY += 5;
+
+    const splitText = doc.splitTextToSize(`${index + 1}. ${rec}`, 180); // Wrap text to fit within 180 width
+    splitText.forEach((line) => {
+        if (recY > doc.internal.pageSize.getHeight() - 20) {
+            doc.addPage(); // Add a new page if we exceed the current page height
+            recY = 20; // Reset starting Y position on the new page
+        }
+        doc.text(line, 10, recY); // Write the wrapped line
+        recY += 5; // Line spacing
+    });
+});
     
         // Footer
         const pageHeight = doc.internal.pageSize.getHeight();
