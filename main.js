@@ -284,7 +284,7 @@ function closeModal() {
         // Add color labels vertically
         const labelStartY = lineStartY + 5; // Y position aligned with the chart
         const labelX = lineX + 5; // X position next to the vertical line
-        doc.setFontSize(10);
+        doc.setFontSize(12);
     
         labels.forEach((label, i) => {
             // Set color for each label
@@ -301,7 +301,7 @@ let recY = pieChartY + chartHeight + 15;
 doc.setFontSize(12);
 doc.setFont("times", "bold");
 doc.text("Recommendations:", 10, recY);
-
+doc.setFontSize(12);
 doc.setFont("times", "normal");
 
 // Handle text wrapping for recommendations
@@ -322,7 +322,7 @@ recommendations.forEach((rec, index) => {
         // Footer
         const pageHeight = doc.internal.pageSize.getHeight();
         const footerY = pageHeight - 20;
-        doc.setFontSize(10);
+        doc.setFontSize(12);
         doc.text("Developed by Saham Alam", 10, footerY);
         doc.text(`${currentDateTime}`, 165, footerY);
         doc.text("Thank you for using the Negative Marking Calculator!", 10, pageHeight - 10);
