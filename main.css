@@ -471,17 +471,23 @@ background-color: #FF6600
 .popup-message {
   display: none; /* Hidden by default */
   position: fixed; /* Fixed position */
-  top: 50%; /* Center vertically */
+  top: 10%; /* Center vertically */
   left: 50%; /* Center horizontally */
   transform: translate(-50%, -50%); /* Adjust position to center */
-  background-color: rgba(0, 0, 0, 0.75); /* Semi-transparent background */
+  background-color: rgba(0, 0, 0, 1); /* Semi-transparent background */
   color: white; /* Text color */
-  padding: 10px 20px; /* Padding around the text */
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px 10px; /* Padding around the text */
   border-radius: 5px; /* Rounded corners */
   z-index: 1000; /* Ensure it's on top */
   transition: opacity 0.3s ease; /* Smooth transition */
   opacity: 0; /* Start hidden */
 }
+.coffee {
+  font-weight: bold;
+  padding: 10px 0;
+} 
 
 /* Show the popup message when active */
 .popup-message.show {
