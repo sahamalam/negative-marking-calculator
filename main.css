@@ -554,3 +554,66 @@ background-color: #FF6600
 .cancel-button:hover {
   background-color: darkred; /* Darker red on hover */
 }
+
+/* Modal background */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+  padding-top: 20px; /* Adjust for vertical alignment */
+  box-sizing: border-box;
+}
+
+/* Modal content */
+.modal-content {
+  background-color: white;
+  margin: 5% auto; /* Center the modal */
+  padding: 5px;
+  border: 1px solid #888;
+  width: 75%; /* Modal width is 75% of the screen */
+  max-width: 600px; /* Max width for larger screens */
+  text-align: center;
+  box-sizing: border-box;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Close button */
+.close {
+  color: #aaa;
+  font-size: 48px;
+  font-weight: bold;
+  position: absolute;
+  top: 50px;
+  right: 30px;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Styling for mobile responsiveness */
+@media (max-width: 600px) {
+  .modal-content {
+    width: 95%; /* For mobile, make the modal width 90% */
+    padding: 5px;
+  }
+
+  .close {
+    font-size: 32px;
+    right: 24px;
+  }
+}
+
+
+
+

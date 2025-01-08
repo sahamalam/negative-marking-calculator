@@ -344,3 +344,27 @@ let username = '';
 let courseName = '';
 
 
+document.addEventListener("DOMContentLoaded", function () {
+    // Get modal and link elements
+    var modal = document.getElementById("buyMeModal");
+    var link = document.getElementById("buyMeACoffeeLink");
+    var closeBtn = document.getElementsByClassName("close")[0];
+  
+    // Open the modal when the text link is clicked
+    link.onclick = function() {
+      modal.style.display = "block";
+    }
+  
+    // Close the modal when the "x" button is clicked
+    closeBtn.onclick = function() {
+      modal.style.display = "none";
+    }
+  
+    // Close the modal if the user clicks outside the modal content
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+  });
+  
