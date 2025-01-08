@@ -3,6 +3,17 @@ body {
     font-family: 'Nunito', sans-serif;
     font-size: 1rem;
 }
+/* Media query for mobile (screen width up to 768px) */
+@media (max-width: 768px) {
+  body {
+    zoom: 90%; /* Zoom level for mobile */
+  }
+}
+@media (min-width: 769px) {
+  body {
+    zoom: 75%; /* Zoom level for desktop */
+  }
+}
 
 input {
     display: inline-block;
