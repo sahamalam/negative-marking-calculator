@@ -118,18 +118,53 @@ function closeModal() {
   function downloadResult() {
     const { jsPDF } = window.jspdf;
 
-    // Prompt for username and course name
-    const username = prompt("Please enter your name:");
-    const courseName = prompt("Please enter the exam name:");
+    // Function to validate the username (only letters, no numbers or special characters)
+function isValidUsername(name) {
+    return /^[A-Za-z\s]+$/.test(name); // Allows only letters and spaces
+}
 
-    // Check if the user provided both inputs
-    if (!username || !courseName) {
-        alert("Both name and exam/course name are required to download the result sheet.");
-        return;
+// Function to validate the course name (text first, numbers optional at the end)
+function isValidCourseName(course) {
+    return /^[A-Za-z\s]+\d*$/.test(course); // Starts with text, optional numbers at the end
+}
+
+// Prompt for username
+let username = prompt("Please enter your name:");
+if (username === null) {
+    alert("Action cancelled.");
+    return; // Exit if Cancel is clicked
+}
+while (!isValidUsername(username)) {
+    alert("Invalid name! Please enter a valid name with letters only (no numbers or special characters). (e.g., Kuldeep Kumar Yadav)");
+    username = prompt("Please enter your name:");
+    if (username === null) {
+        alert("Action cancelled.");
+        return; // Exit if Cancel is clicked
     }
-     // Google Apps Script URL (Replace with your actual script URL)
-     const scriptURL = 'https://script.google.com/macros/s/AKfycbw-CE0H-x3rz_T1OBF1ky7He61Fo8rSR9evwpHl_CMikePYNqq7B4XcnNKU14CUyITq/exec';
-     const payload = { username: username, courseName: courseName };
+}
+
+// Prompt for course name
+let courseName = prompt("Please enter the exam name:");
+if (courseName === null) {
+    alert("Action cancelled.");
+    return; // Exit if Cancel is clicked
+}
+while (!isValidCourseName(courseName)) {
+    alert("Invalid exam name! It should start with letters and may have numbers at the end (e.g., 'UPSC' or 'UPSC 2025' , 'History Test' or 'History Test 1').");
+    courseName = prompt("Please enter the exam name:");
+    if (courseName === null) {
+        alert("Action cancelled.");
+        return; // Exit if Cancel is clicked
+    }
+}
+
+// Proceed if valid inputs are given
+const scriptURL = 'https://script.google.com/macros/s/AKfycbw-CE0H-x3rz_T1OBF1ky7He61Fo8rSR9evwpHl_CMikePYNqq7B4XcnNKU14CUyITq/exec';
+const payload = { username: username, courseName: courseName };
+
+// Your further processing here
+console.log("Valid Input Received:", payload);
+
  
      // Send the data to Google Sheets
      fetch(scriptURL, {
