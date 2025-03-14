@@ -624,6 +624,12 @@ background-color: #FF6600
   }
 }
 
-
-
-
+/* blinking */
+.blink {
+  animation: blinker 2s linear infinite;
+}
+@keyframes blinker {
+  50% {
+      opacity: 0;
+  }
+}
