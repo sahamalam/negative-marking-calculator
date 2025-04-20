@@ -2,6 +2,7 @@ body {
     background-color: #FFFFFF;
     font-family: 'Nunito', sans-serif;
     font-size: 1rem;
+    overflow-x: hidden;
 }
 /* Media query for mobile (screen width up to 768px) */
 @media (max-width: 768px) {
@@ -435,7 +436,7 @@ background-color: #FF6600
 
 
   .social {
-    padding-top: 20px;
+    padding-top: 0px;
   }
 
   .container a {
@@ -496,7 +497,7 @@ background-color: #FF6600
 }
 .coffee {
   font-weight: bold;
-  padding: 10px 0;
+  padding: 5px 0;
 } 
 
 /* Show the popup message when active */
@@ -632,4 +633,15 @@ background-color: #FF6600
   50% {
       opacity: 0;
   }
+}
+
+
+.ad-container {
+  display: block;
+  margin: 0 auto;
+  padding: 10px;
+  text-align: center;
+  width: 100%; /* Adjust width based on your ad size */
+  max-width: 320px; /* Set a max width to match the iframe */
+  overflow: hidden;
 }
