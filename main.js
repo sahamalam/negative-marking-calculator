@@ -118,45 +118,48 @@ function closeModal() {
   function downloadResult() {
     const { jsPDF } = window.jspdf;
 
-    // Function to validate the username (only letters, no numbers or special characters)
-function isValidUsername(name) {
-    return /^[A-Za-z\s]+$/.test(name); // Allows only letters and spaces
-}
-
-// Function to validate the course name (text first, numbers optional at the end)
-function isValidCourseName(course) {
-    return /^[A-Za-z\s]+\d*$/.test(course); // Starts with text, optional numbers at the end
-}
-
-// Prompt for username
-let username = prompt("Please enter your name:");
-if (username === null) {
-    alert("Action cancelled.");
-    return; // Exit if Cancel is clicked
-}
-while (!isValidUsername(username)) {
-    alert("Invalid name! Please enter a valid name with letters only (no numbers or special characters). (e.g., Kuldeep Kumar Yadav)");
-    username = prompt("Please enter your name:");
-    if (username === null) {
-        alert("Action cancelled.");
-        return; // Exit if Cancel is clicked
+    // Enhanced Username Validation
+    function isValidUsername(name) {
+        name = name.trim();
+        const parts = name.split(/\s+/);
+        return (
+            parts.length >= 2 &&
+            parts.every(part => /^[A-Za-z]{2,}$/.test(part))
+        );
     }
-}
 
-// Prompt for course name
-let courseName = prompt("Please enter the exam name:");
-if (courseName === null) {
-    alert("Action cancelled.");
-    return; // Exit if Cancel is clicked
-}
-while (!isValidCourseName(courseName)) {
-    alert("Invalid exam name! It should start with letters and may have numbers at the end (e.g., 'UPSC' or 'UPSC 2025' , 'History Test' or 'History Test 1').");
-    courseName = prompt("Please enter the exam name:");
-    if (courseName === null) {
-        alert("Action cancelled.");
-        return; // Exit if Cancel is clicked
+    // Enhanced Course Name Validation
+    function isValidCourseName(course) {
+        course = course.trim();
+        const validKeywords = ['UPSC', 'GATE', 'SSC', 'CGL', 'RAILWAY', 'BANK', 'NEET', 'CAT', 'NET', 'UGC', 'NDA', 'CUET', 'PCS', 'JE', 'IAS', 'IPS'];
+        const hasKeyword = validKeywords.some(keyword =>
+            course.toUpperCase().includes(keyword)
+        );
+        const wordCount = course.split(/\s+/).filter(word => word.length >= 2).length;
+        return hasKeyword && wordCount >= 2;
     }
-}
+
+    // Prompt for full name
+    let username = prompt("Please enter your full name (e.g., Alex Johnson):");
+    if (username === null) return;
+    username = username.trim();
+    while (!isValidUsername(username)) {
+        alert("❌ Invalid name!\nPlease enter your full name with at least two real words (e.g., Kuldeep Kumar Yadav).");
+        username = prompt("Please enter your full name:");
+        if (username === null) return;
+        username = username.trim();
+    }
+
+    // Prompt for course name
+    let courseName = prompt("Please enter your exam name (e.g., UPSC 2025):");
+    if (courseName === null) return;
+    courseName = courseName.trim();
+    while (!isValidCourseName(courseName)) {
+        alert("❌ Invalid exam name!\nPlease enter a real exam like UPSC 2025, GATE 2025, SSC CGL, etc.");
+        courseName = prompt("Please enter your exam name:");
+        if (courseName === null) return;
+        courseName = courseName.trim();
+    }
 
 // Proceed if valid inputs are given
 const scriptURL = 'https://script.google.com/macros/s/AKfycbw-CE0H-x3rz_T1OBF1ky7He61Fo8rSR9evwpHl_CMikePYNqq7B4XcnNKU14CUyITq/exec';
