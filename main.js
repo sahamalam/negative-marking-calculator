@@ -140,22 +140,22 @@ function closeModal() {
     }
 
     // Prompt for full name
-    let username = prompt("Please enter your full name (e.g., Alex Johnson):");
+    let username = prompt("Please enter your full name.");
     if (username === null) return;
     username = username.trim();
     while (!isValidUsername(username)) {
-        alert("❌ Invalid name!\nPlease enter your full name with at least two real words (e.g., Kuldeep Kumar Yadav).");
+        alert("❌ Invalid name!\nPlease enter your full name with at least two real words.");
         username = prompt("Please enter your full name:");
         if (username === null) return;
         username = username.trim();
     }
 
     // Prompt for course name
-    let courseName = prompt("Please enter your exam name (e.g., UPSC 2025):");
+    let courseName = prompt("Please enter your exam name:");
     if (courseName === null) return;
     courseName = courseName.trim();
     while (!isValidCourseName(courseName)) {
-        alert("❌ Invalid exam name!\nPlease enter a real exam like UPSC 2025, GATE 2025, SSC CGL, etc.");
+        alert("❌ Invalid exam name!\nPlease enter a real exam.");
         courseName = prompt("Please enter your exam name:");
         if (courseName === null) return;
         courseName = courseName.trim();
