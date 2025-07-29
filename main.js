@@ -131,13 +131,17 @@ function closeModal() {
     // Enhanced Course Name Validation
     function isValidCourseName(course) {
         course = course.trim();
-        const validKeywords = ['UPSC', 'GATE', 'SSC', 'CGL', 'RAILWAY', 'BANK', 'NEET', 'CAT', 'NET', 'UGC', 'NDA', 'CUET', 'PCS', 'JE', 'IAS', 'IPS'];
-        const hasKeyword = validKeywords.some(keyword =>
-            course.toUpperCase().includes(keyword)
-        );
-        const wordCount = course.split(/\s+/).filter(word => word.length >= 2).length;
-        return hasKeyword && wordCount >= 2;
+        if (!course) return false;
+    
+        // Split into words (minimum 2 required)
+        const words = course.split(/\s+/);
+    
+        // Count how many words are valid (at least 2 alphabetic characters)
+        const validWordCount = words.filter(word => /^[A-Za-z]{2,}$/.test(word)).length;
+    
+        return validWordCount >= 2;
     }
+    
 
     // Prompt for full name
     let username = prompt("Please enter your full name.");
