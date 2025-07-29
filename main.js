@@ -133,14 +133,15 @@ function closeModal() {
         course = course.trim();
         if (!course) return false;
     
-        // Split into words (minimum 2 required)
+        // Split the input by spaces
         const words = course.split(/\s+/);
     
-        // Count how many words are valid (at least 2 alphabetic characters)
-        const validWordCount = words.filter(word => /^[A-Za-z]{2,}$/.test(word)).length;
+        // Check for 2 or more valid words (word = at least 2 alphanumeric characters)
+        const validWordCount = words.filter(word => /^[A-Za-z0-9]{2,}$/.test(word)).length;
     
         return validWordCount >= 2;
     }
+    
     
 
     // Prompt for full name
