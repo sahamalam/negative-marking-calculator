@@ -362,13 +362,26 @@ recommendations.forEach((rec, index) => {
     });
 });
     
-        // Footer
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const footerY = pageHeight - 20;
-        doc.setFontSize(12);
-        doc.text("Developed by Saham Alam", 10, footerY);
-        doc.text(`${currentDateTime}`, 165, footerY);
-        doc.text("Thank you for using the Negative Marking Calculator!", 10, pageHeight - 10);
+        /// Footer
+const pageHeight = doc.internal.pageSize.getHeight();
+const footerY = pageHeight - 20;
+const thankYouY = pageHeight - 10; // same as before
+
+// Developer and Date
+doc.setFontSize(12);
+doc.text("Developed by Saham Alam", 10, footerY);
+doc.text(`${currentDateTime}`, 140, footerY);
+
+// Thank you + Report ID on same line
+doc.setFont("times", "normal");
+doc.text("Thank you for using the Negative Marking Calculator!", 10, thankYouY);
+
+// Generate Report ID
+const uniqueID = `NMC-${Date.now().toString().slice(-6)}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+// Add Report ID to same line, right-aligned
+doc.setFont("times", "normal");
+doc.text(`Report ID: ${uniqueID}`, 140, thankYouY);  // adjust X=140 if overlapping
     
         // Save PDF
         doc.save("negative_marking_calculator_result.pdf");
