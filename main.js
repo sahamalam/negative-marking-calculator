@@ -128,9 +128,6 @@ function closeModal() {
         );
     }
 
-    nmcShowOverlay(courseName);
-    nmcShowToast("✅ PDF Downloaded!");
-    
     // Enhanced Course Name Validation
     function isValidCourseName(course) {
         course = course.trim();
