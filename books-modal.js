@@ -148,15 +148,13 @@ async function nmcFetchBooks(examName) {
     if (res.status === 429) throw new Error("RATE_LIMIT_EXCEEDED");
     if (!res.ok) throw new Error("API_ERROR");
 
-    const data = await res.json();
-    const text = data.candidates[0].content.parts[0].text.trim();
-    return JSON.parse(text.replace(/```json|```/g, "").trim());
+    // Backend se direct clean array milega, use parse karein
+    return await res.json();
   } catch (error) {
     console.error("Backend API Error:", error.message);
     throw error;
   }
 }
-
 function nmcURL(q) {
   return `https://www.amazon.in/s?k=${encodeURIComponent(q)}&tag=${NMC_TAG}`;
 }
