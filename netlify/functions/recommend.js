@@ -1,7 +1,7 @@
 exports.handler = async function (event, context) {
-    // CORS Headers: Taaki aapki github pages wali website isko access kar sake
+    // 🛠️ FIX: CORS Headers ko '*' kar diya hai taaki koi bhi origin block na ho
     const headers = {
-      'Access-Control-Allow-Origin': 'https://sahamalam.github.io',
+      'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
     };
