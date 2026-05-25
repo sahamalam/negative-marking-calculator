@@ -64,22 +64,25 @@ function _0x2df0(_0x3506de, _0x4dd340) {
         _0x468332 = document[_0x3cdcf6(0x1c3)]("a4")[_0x3cdcf6(0x1c5)],
         _0x19214d = document[_0x3cdcf6(0x1c3)]("a5")[_0x3cdcf6(0x1c5)];
 
-         // Calculate the penalty marks
-         const penaltyMarks = _0x468332 * (1 / _0x19214d);
+    // 🛠️ FIX: Check if Exam Name is empty
+    const examInput = document.getElementById("examName");
+    if (!examInput || !examInput.value.trim()) {
+        alert("Please enter the Exam Name first!");
+        return;
+    }
 
-    // Calculate the result
-  var _0x3d271d = _0x2abbee * _0x1a248f - _0x468332 * _0x1a248f - (_0x468332 * _0x1a248f * "1") / _0x19214d;
+    const penaltyMarks = _0x468332 * (1 / _0x19214d);
+    var _0x3d271d = _0x2abbee * _0x1a248f - _0x468332 * _0x1a248f - (_0x468332 * _0x1a248f * "1") / _0x19214d;
 
-  // Display the result with two decimal places
-  document[_0x3cdcf6(0x1c3)]("a6")["innerHTML"] = _0x3d271d.toFixed(2);
-  // Display the final score
-  document.getElementById("finalScore")["innerText"] = _0x3d271d.toFixed(2);
+    document[_0x3cdcf6(0x1c3)]("a6")["innerHTML"] = _0x3d271d.toFixed(2);
+    document.getElementById("finalScore")["innerText"] = _0x3d271d.toFixed(2);
 
-  // Show the modal
-  document.getElementById("resultModal").style.display = "flex";
+    window.penaltyMarks = penaltyMarks.toFixed(2);
 
-  // Store penaltyMarks globally (for use in the PDF)
-  window.penaltyMarks = penaltyMarks.toFixed(2);
+    // 🛠️ FIX: Set global variable for books-modal.js
+    window.currentExamName = examInput.value.trim();
+
+    document.getElementById("resultModal").style.display = "flex";
 });
 
 

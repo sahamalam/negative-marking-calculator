@@ -116,6 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ── Anti-Spam MutationObserver ───────────────────────────────
+  // ── Anti-Spam MutationObserver ───────────────────────────────
   const modal = document.getElementById("resultModal");
   let isFetching = false;
 
@@ -125,16 +126,25 @@ document.addEventListener("DOMContentLoaded", function () {
         if (isFetching) return; 
         isFetching = true;
 
-        const examEl = document.getElementById("examName")
-          || document.getElementById("exam-name")
-          || document.getElementById("examname");
+        // Sabse pehle main.js ke global variable se ekdam fresh exam name uthao
+        let examName = window.currentExamName;
+
+        if (!examName) {
+          const examEl = document.getElementById("examName")
+            || document.getElementById("exam-name")
+            || document.getElementById("examname");
+          examName = examEl ? examEl.value.trim() : "";
+        }
+
+        if (!examName) {
+          examName = "competitive exam";
+        }
         
-        nmcFetchStrip(examEl ? examEl.value.trim() : "competitive exam");
+        nmcFetchStrip(examName);
         setTimeout(() => { isFetching = false; }, 3000); // 3 Second lock
       }
     }).observe(modal, { attributes: true, attributeFilter: ["style"] });
   }
-});
 
 // ── 3. Netlify Backend API Call ───────────────────────────────
 async function nmcFetchBooks(examName) {
