@@ -118,15 +118,25 @@ document.addEventListener("DOMContentLoaded", function () {
       : modalContent.appendChild(strip);
   }
 
+ // ✅ IS NAYE CODE KO PASTE KAREIN:
   // Watch resultModal open (style change)
   const modal = document.getElementById("resultModal");
+  let isFetching = false; // Double call bachane ke liye lock
+
   if (modal) {
     new MutationObserver(function () {
       if (modal.style.display === "flex" || modal.style.display === "block") {
+        if (isFetching) return; // Agar ek baar chal raha hai toh ruk jao
+        isFetching = true;
+
         const examEl = document.getElementById("examName")
           || document.getElementById("exam-name")
           || document.getElementById("examname");
+        
         nmcFetchStrip(examEl ? examEl.value.trim() : "competitive exam");
+
+        // 3 second baad lock kholo taaki agli baar calculator chalne par chale
+        setTimeout(() => { isFetching = false; }, 3000);
       }
     }).observe(modal, { attributes: true, attributeFilter: ["style"] });
   }
