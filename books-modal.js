@@ -1,13 +1,13 @@
 // ============================================================
-// books-modal.js — Gemini API powered book recommendations
-// index.html mein sirf yeh line add karo (main.js ke baad):
-// <script src="books-modal.js"></script>
+// books-modal.js — Netlify Backend Powered Book Recommendations
 // ============================================================
 
-const NMC_TAG    = "nmc007-21";      // Amazon tracking ID
-const GEMINI_KEY = "AIzaSyCQMog_2AHmHs8imdGGXFU80495XebmdPI"; // Apni Gemini key yahan daalo
+const NMC_TAG = "nmc007-21"; // Amazon tracking ID
 
-// ── 1. CSS ───────────────────────────────────────────────────
+// 🛠️ STEP 3.1: Netlify par deploy karne ke baad jo link milega, use yahan badlein:
+const NETLIFY_BACKEND_URL = "https://aesthetic-babka-0eb571.netlify.app/"; 
+
+// ── 1. CSS Injection ───────────────────────────────────────────
 const _nmcStyle = document.createElement("style");
 _nmcStyle.textContent = `
   #nmc-book-strip { margin:14px 0 10px; border-top:1px solid #f0e0d6; padding-top:12px; }
@@ -48,9 +48,8 @@ _nmcStyle.textContent = `
 `;
 document.head.appendChild(_nmcStyle);
 
-// ── 2. DOM ready hone par sab inject karo ────────────────────
+// ── 2. DOM Ready Elements Injection ───────────────────────────
 document.addEventListener("DOMContentLoaded", function () {
-
   // Overlay HTML
   const ovl = document.createElement("div");
   ovl.id = "nmc-overlay";
@@ -84,14 +83,14 @@ document.addEventListener("DOMContentLoaded", function () {
   `;
   document.body.appendChild(ovl);
 
-  // Toast
+  // Toast HTML
   const toast = document.createElement("div");
   toast.className = "nmc-toast";
   toast.id = "nmc-toast";
   toast.innerHTML = `<span>✅</span><span id="nmc-toast-msg">PDF Downloaded!</span>`;
   document.body.appendChild(toast);
 
-  // Book strip inside result modal
+  // Book strip injection inside result modal
   const modalContent = document.querySelector("#resultModal .modal-content");
   if (modalContent) {
     const strip = document.createElement("div");
@@ -113,20 +112,17 @@ document.addEventListener("DOMContentLoaded", function () {
       </div>
     `;
     const btnContainer = modalContent.querySelector(".button-container");
-    btnContainer
-      ? modalContent.insertBefore(strip, btnContainer)
-      : modalContent.appendChild(strip);
+    btnContainer ? modalContent.insertBefore(strip, btnContainer) : modalContent.appendChild(strip);
   }
 
- // ✅ IS NAYE CODE KO PASTE KAREIN:
-  // Watch resultModal open (style change)
+  // ── Anti-Spam MutationObserver ───────────────────────────────
   const modal = document.getElementById("resultModal");
-  let isFetching = false; // Double call bachane ke liye lock
+  let isFetching = false;
 
   if (modal) {
     new MutationObserver(function () {
       if (modal.style.display === "flex" || modal.style.display === "block") {
-        if (isFetching) return; // Agar ek baar chal raha hai toh ruk jao
+        if (isFetching) return; 
         isFetching = true;
 
         const examEl = document.getElementById("examName")
@@ -134,104 +130,76 @@ document.addEventListener("DOMContentLoaded", function () {
           || document.getElementById("examname");
         
         nmcFetchStrip(examEl ? examEl.value.trim() : "competitive exam");
-
-        // 3 second baad lock kholo taaki agli baar calculator chalne par chale
-        setTimeout(() => { isFetching = false; }, 3000);
+        setTimeout(() => { isFetching = false; }, 3000); // 3 Second lock
       }
     }).observe(modal, { attributes: true, attributeFilter: ["style"] });
   }
 });
 
-// ── 3. Gemini API call (Upgraded with 429 Error Handling) ───────────────────────
+// ── 3. Netlify Backend API Call ───────────────────────────────
 async function nmcFetchBooks(examName) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
-    
-    try {
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text:
-            `Book recommender for Indian competitive exam students.
-  Exam: "${examName}"
-  Return ONLY a valid JSON array of 3 books. No markdown, no explanation.
-  [{"title":"Book Title - Author","search":"short amazon search query"},{"title":"Book Title - Author","search":"short amazon search query"},{"title":"Book Title - Author","search":"short amazon search query"}]
-  Rules: real books on Amazon India, standard books for this exam.`
-          }]}],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 300 }
-        })
-      });
-  
-      // Agar rate limit hit ho jaye (429 error)
-      if (res.status === 429) {
-        throw new Error("RATE_LIMIT_EXCEEDED");
-      }
-  
-      if (!res.ok) {
-        throw new Error("API_ERROR");
-      }
-  
-      const data = await res.json();
-      const text = data.candidates[0].content.parts[0].text.trim();
-      return JSON.parse(text.replace(/```json|```/g, "").trim());
-    } catch (error) {
-      console.error("Gemini API Error:", error.message);
-      throw error; // Yeh error niche fallback ko trigger karega
-    }
-  }
-  
-  function nmcURL(q) {
-    return `https://www.amazon.in/s?k=${encodeURIComponent(q)}&tag=${NMC_TAG}`;
-  }
-  
-  // ── 4. Strip (inside modal) ───────────────────────────────────
-  function nmcFetchStrip(examName) {
-    const skels  = document.getElementById("nmc-strip-skeletons");
-    const books  = document.getElementById("nmc-strip-books");
-    const status = document.getElementById("nmc-strip-status");
-    const more   = document.getElementById("nmc-strip-more");
-    if (!skels) return;
-  
-    skels.style.display = "block";
-    books.innerHTML = "";
-    status.textContent = "Finding books...";
-    more.href = nmcURL(examName + " exam books");
-  
-    nmcFetchBooks(examName).then(list => {
-      skels.style.display = "none";
-      status.textContent = "Top picks 👇";
-      more.href = nmcURL(examName + " exam books");
-      more.textContent = `View more ${examName} books →`;
-      list.forEach(b => {
-        const a = document.createElement("a");
-        a.className = "nmc-book-item";
-        a.href = nmcURL(b.search); a.target = "_blank"; a.rel = "noopener";
-        a.innerHTML = `<span style="font-size:18px">📖</span><span class="nmc-book-name">${b.title}</span><span class="nmc-book-cta">Amazon →</span>`;
-        books.appendChild(a);
-      });
-    }).catch((error) => {
-      // FALLBACK: Agar 429 error aaye toh loader hata kar yeh direct link dikhao
-      skels.style.display = "none";
-      if (error.message === "RATE_LIMIT_EXCEEDED") {
-        status.textContent = "Direct Amazon search enabled 👇";
-      } else {
-        status.textContent = "Browse books 👇";
-      }
-      books.innerHTML = `
-        <a class="nmc-book-item" href="${nmcURL(examName + ' best books')}" target="_blank" rel="noopener">
-          <span style="font-size:18px">📚</span>
-          <span class="nmc-book-name">Best Recommended Books for ${examName}</span>
-          <span class="nmc-book-cta">Search →</span>
-        </a>
-        <a class="nmc-book-item" href="${nmcURL(examName + ' solved papers')}" target="_blank" rel="noopener">
-          <span style="font-size:18px">📝</span>
-          <span class="nmc-book-name">Previous Year Solved Papers & Mock Tests</span>
-          <span class="nmc-book-cta">Search →</span>
-        </a>`;
+  try {
+    const res = await fetch(NETLIFY_BACKEND_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ examName: examName })
     });
-  }
 
-// ── 5. Full overlay (after PDF download) ─────────────────────
+    if (res.status === 429) throw new Error("RATE_LIMIT_EXCEEDED");
+    if (!res.ok) throw new Error("API_ERROR");
+
+    const data = await res.json();
+    const text = data.candidates[0].content.parts[0].text.trim();
+    return JSON.parse(text.replace(/```json|```/g, "").trim());
+  } catch (error) {
+    console.error("Backend API Error:", error.message);
+    throw error;
+  }
+}
+
+function nmcURL(q) {
+  return `https://www.amazon.in/s?k=${encodeURIComponent(q)}&tag=${NMC_TAG}`;
+}
+
+// ── 4. Strip UI Rendering ─────────────────────────────────────
+function nmcFetchStrip(examName) {
+  const skels  = document.getElementById("nmc-strip-skeletons");
+  const books  = document.getElementById("nmc-strip-books");
+  const status = document.getElementById("nmc-strip-status");
+  const more   = document.getElementById("nmc-strip-more");
+  if (!skels) return;
+
+  skels.style.display = "block";
+  books.innerHTML = "";
+  status.textContent = "Finding books...";
+  more.href = nmcURL(examName + " exam books");
+
+  nmcFetchBooks(examName).then(list => {
+    skels.style.display = "none";
+    status.textContent = "Top picks 👇";
+    more.href = nmcURL(examName + " exam books");
+    more.textContent = `View more ${examName} books →`;
+    list.forEach(b => {
+      const a = document.createElement("a");
+      a.className = "nmc-book-item";
+      a.href = nmcURL(b.search); a.target = "_blank"; a.rel = "noopener";
+      a.innerHTML = `<span style="font-size:18px">📖</span><span class="nmc-book-name">${b.title}</span><span class="nmc-book-cta">Amazon →</span>`;
+      books.appendChild(a);
+    });
+  }).catch((error) => {
+    skels.style.display = "none";
+    status.textContent = error.message === "RATE_LIMIT_EXCEEDED" ? "Direct search enabled 👇" : "Browse books 👇";
+    books.innerHTML = `
+      <a class="nmc-book-item" href="${nmcURL(examName + ' best books')}" target="_blank" rel="noopener">
+        <span style="font-size:18px">📚</span><span class="nmc-book-name">Best Recommended Books for ${examName}</span><span class="nmc-book-cta">Search →</span>
+      </a>
+      <a class="nmc-book-item" href="${nmcURL(examName + ' solved papers')}" target="_blank" rel="noopener">
+        <span style="font-size:18px">📝</span><span class="nmc-book-name">Previous Year Solved Papers & Mock Tests</span><span class="nmc-book-cta">Search →</span>
+      </a>`;
+  });
+}
+
+// ── 5. Full Overlay Rendering ──────────────────────────────────
 window.nmcShowOverlay = function (examName) {
   const skels  = document.getElementById("nmc-ovl-skeletons");
   const books  = document.getElementById("nmc-ovl-books");
@@ -269,7 +237,6 @@ window.nmcCloseOverlay = function () {
   document.getElementById("nmc-overlay").classList.remove("nmc-active");
 };
 
-// ── 6. Toast ─────────────────────────────────────────────────
 window.nmcShowToast = function (msg) {
   const t = document.getElementById("nmc-toast");
   document.getElementById("nmc-toast-msg").textContent = msg;
