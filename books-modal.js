@@ -5,7 +5,7 @@
 const NMC_TAG = "nmc007-21"; // Amazon tracking ID
 
 // 🛠️ STEP 3.1: Netlify par deploy karne ke baad jo link milega, use yahan badlein:
-const NETLIFY_BACKEND_URL = "https://aesthetic-babka-0eb571.netlify.app/"; 
+const NETLIFY_BACKEND_URL = "https://aesthetic-babka-0eb571.netlify.app/.netlify/functions/recommend"; 
 
 // ── 1. CSS Injection ───────────────────────────────────────────
 const _nmcStyle = document.createElement("style");
