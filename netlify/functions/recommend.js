@@ -26,14 +26,15 @@ exports.handler = async function (event, context) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text:
-          `List 3 standard books for the Indian competitive exam: "${examName}". 
-          Your response must be a valid JSON array matching this schema:
-          [{"title": "Book Title - Author", "search": "short amazon search query"}]`
+          `List 3 best books for the Indian competitive exam: "${examName}".
+          Provide the output ONLY as a raw JSON array. Do not include any introductory or concluding text. Do not wrap the code in markdown blocks.
+          Use this exact format:
+          [{"title": "Book Title - Author", "search": "short amazon search query"}, {"title": "Book Title - Author", "search": "short amazon search query"}, {"title": "Book Title - Author", "search": "short amazon search query"}]`
         }]}],
         generationConfig: { 
           temperature: 0.2, 
-          maxOutputTokens: 300,
-          responseMimeType: "application/json" // Yeh strict JSON input maangta hai
+          maxOutputTokens: 300
+          // 🛠️ REMOVED: responseMimeType hata diya taaki 400 error aana band ho jaye
         }
       })
     });
@@ -46,8 +47,10 @@ exports.handler = async function (event, context) {
 
     let rawText = data.candidates[0].content.parts[0].text.trim();
     
-    // Safe cleaning
-    rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
+    // 🛠️ SUPER CLEANING: Agar Gemini galti se markdown block ```json bhi de de, toh use saaf karein
+    if (rawText.includes("```")) {
+      rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
+    }
     
     const cleanJson = JSON.parse(rawText);
 
