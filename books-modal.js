@@ -132,62 +132,94 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-// ── 3. Gemini API call ───────────────────────────────────────
+// ── 3. Gemini API call (Upgraded with 429 Error Handling) ───────────────────────
 async function nmcFetchBooks(examName) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text:
-        `Book recommender for Indian competitive exam students.
-Exam: "${examName}"
-Return ONLY a valid JSON array of 3 books. No markdown, no explanation.
-[{"title":"Book Title - Author","search":"short amazon search query"},{"title":"Book Title - Author","search":"short amazon search query"},{"title":"Book Title - Author","search":"short amazon search query"}]
-Rules: real books on Amazon India, standard books for this exam.`
-      }]}],
-      generationConfig: { temperature: 0.3, maxOutputTokens: 300 }
-    })
-  });
-  const data = await res.json();
-  const text = data.candidates[0].content.parts[0].text.trim();
-  return JSON.parse(text.replace(/```json|```/g, "").trim());
-}
-
-function nmcURL(q) {
-  return `https://www.amazon.in/s?k=${encodeURIComponent(q)}&tag=${NMC_TAG}`;
-}
-
-// ── 4. Strip (inside modal) ───────────────────────────────────
-function nmcFetchStrip(examName) {
-  const skels  = document.getElementById("nmc-strip-skeletons");
-  const books  = document.getElementById("nmc-strip-books");
-  const status = document.getElementById("nmc-strip-status");
-  const more   = document.getElementById("nmc-strip-more");
-  if (!skels) return;
-
-  skels.style.display = "block";
-  books.innerHTML = "";
-  status.textContent = "Finding books...";
-  more.href = nmcURL(examName + " exam books");
-
-  nmcFetchBooks(examName).then(list => {
-    skels.style.display = "none";
-    status.textContent = "Top picks 👇";
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+    
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text:
+            `Book recommender for Indian competitive exam students.
+  Exam: "${examName}"
+  Return ONLY a valid JSON array of 3 books. No markdown, no explanation.
+  [{"title":"Book Title - Author","search":"short amazon search query"},{"title":"Book Title - Author","search":"short amazon search query"},{"title":"Book Title - Author","search":"short amazon search query"}]
+  Rules: real books on Amazon India, standard books for this exam.`
+          }]}],
+          generationConfig: { temperature: 0.3, maxOutputTokens: 300 }
+        })
+      });
+  
+      // Agar rate limit hit ho jaye (429 error)
+      if (res.status === 429) {
+        throw new Error("RATE_LIMIT_EXCEEDED");
+      }
+  
+      if (!res.ok) {
+        throw new Error("API_ERROR");
+      }
+  
+      const data = await res.json();
+      const text = data.candidates[0].content.parts[0].text.trim();
+      return JSON.parse(text.replace(/```json|```/g, "").trim());
+    } catch (error) {
+      console.error("Gemini API Error:", error.message);
+      throw error; // Yeh error niche fallback ko trigger karega
+    }
+  }
+  
+  function nmcURL(q) {
+    return `https://www.amazon.in/s?k=${encodeURIComponent(q)}&tag=${NMC_TAG}`;
+  }
+  
+  // ── 4. Strip (inside modal) ───────────────────────────────────
+  function nmcFetchStrip(examName) {
+    const skels  = document.getElementById("nmc-strip-skeletons");
+    const books  = document.getElementById("nmc-strip-books");
+    const status = document.getElementById("nmc-strip-status");
+    const more   = document.getElementById("nmc-strip-more");
+    if (!skels) return;
+  
+    skels.style.display = "block";
+    books.innerHTML = "";
+    status.textContent = "Finding books...";
     more.href = nmcURL(examName + " exam books");
-    more.textContent = `View more ${examName} books →`;
-    list.forEach(b => {
-      const a = document.createElement("a");
-      a.className = "nmc-book-item";
-      a.href = nmcURL(b.search); a.target = "_blank"; a.rel = "noopener";
-      a.innerHTML = `<span style="font-size:18px">📖</span><span class="nmc-book-name">${b.title}</span><span class="nmc-book-cta">Amazon →</span>`;
-      books.appendChild(a);
+  
+    nmcFetchBooks(examName).then(list => {
+      skels.style.display = "none";
+      status.textContent = "Top picks 👇";
+      more.href = nmcURL(examName + " exam books");
+      more.textContent = `View more ${examName} books →`;
+      list.forEach(b => {
+        const a = document.createElement("a");
+        a.className = "nmc-book-item";
+        a.href = nmcURL(b.search); a.target = "_blank"; a.rel = "noopener";
+        a.innerHTML = `<span style="font-size:18px">📖</span><span class="nmc-book-name">${b.title}</span><span class="nmc-book-cta">Amazon →</span>`;
+        books.appendChild(a);
+      });
+    }).catch((error) => {
+      // FALLBACK: Agar 429 error aaye toh loader hata kar yeh direct link dikhao
+      skels.style.display = "none";
+      if (error.message === "RATE_LIMIT_EXCEEDED") {
+        status.textContent = "Direct Amazon search enabled 👇";
+      } else {
+        status.textContent = "Browse books 👇";
+      }
+      books.innerHTML = `
+        <a class="nmc-book-item" href="${nmcURL(examName + ' best books')}" target="_blank" rel="noopener">
+          <span style="font-size:18px">📚</span>
+          <span class="nmc-book-name">Best Recommended Books for ${examName}</span>
+          <span class="nmc-book-cta">Search →</span>
+        </a>
+        <a class="nmc-book-item" href="${nmcURL(examName + ' solved papers')}" target="_blank" rel="noopener">
+          <span style="font-size:18px">📝</span>
+          <span class="nmc-book-name">Previous Year Solved Papers & Mock Tests</span>
+          <span class="nmc-book-cta">Search →</span>
+        </a>`;
     });
-  }).catch(() => {
-    skels.style.display = "none";
-    books.innerHTML = `<a class="nmc-book-item" href="${nmcURL(examName+' exam books')}" target="_blank" rel="noopener"><span style="font-size:18px">🛒</span><span class="nmc-book-name">Browse ${examName} Books on Amazon</span><span class="nmc-book-cta">Search →</span></a>`;
-  });
-}
+  }
 
 // ── 5. Full overlay (after PDF download) ─────────────────────
 window.nmcShowOverlay = function (examName) {
