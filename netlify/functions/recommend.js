@@ -42,7 +42,7 @@ Rules: real books on Amazon India, standard books for this exam.`
       return { statusCode: response.status || 400, headers, body: JSON.stringify({ error: data.error?.message || "API Error" }) };
     }
 
-    // Gemini ke text ko saaf karna
+    // Gemini ke text ko saaf karne ka pakka jugaad
     let rawText = data.candidates[0].content.parts[0].text.trim();
     rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
     
@@ -51,7 +51,7 @@ Rules: real books on Amazon India, standard books for this exam.`
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(cleanJson) // Frontend ko ekdam saaf array milega
+      body: JSON.stringify(cleanJson)
     };
 
   } catch (error) {

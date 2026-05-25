@@ -116,7 +116,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ── Anti-Spam MutationObserver ───────────────────────────────
-  // ── Anti-Spam MutationObserver ───────────────────────────────
   const modal = document.getElementById("resultModal");
   let isFetching = false;
 
@@ -145,6 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }).observe(modal, { attributes: true, attributeFilter: ["style"] });
   }
+}); // <--- 🛠️ YEH BRACKET MISSED THA, ISKO LAGAYA HAI
 
 // ── 3. Netlify Backend API Call ───────────────────────────────
 async function nmcFetchBooks(examName) {
@@ -165,6 +165,7 @@ async function nmcFetchBooks(examName) {
     throw error;
   }
 }
+
 function nmcURL(q) {
   return `https://www.amazon.in/s?k=${encodeURIComponent(q)}&tag=${NMC_TAG}`;
 }
