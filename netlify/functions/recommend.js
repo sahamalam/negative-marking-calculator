@@ -19,20 +19,23 @@ exports.handler = async function (event, context) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'examName missing' }) };
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+    // Fast Stable Endpoint
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text:
-          `Book recommender for Indian competitive exam students.
-Exam: "${examName}"
-Return ONLY a valid JSON array of 3 books. No markdown (do NOT wrap inside \`\`\`json), no explanation.
-[{"title":"Book Title - Author","search":"short amazon search query"},{"title":"Book Title - Author","search":"short amazon search query"},{"title":"Book Title - Author","search":"short amazon search query"}]
-Rules: real books on Amazon India, standard books for this exam.`
+          `Return a JSON array of 3 real Amazon India books for exam: "${examName}".
+          Format: [{"title":"Book Title - Author","search":"short amazon query"}]. 
+          Output ONLY raw JSON array. No markdown, no explanations, be extremely concise.`
         }]}],
-        generationConfig: { temperature: 0.2, maxOutputTokens: 400 }
+        generationConfig: { 
+          temperature: 0.1, 
+          maxOutputTokens: 250,
+          responseMimeType: "application/json" // Gemini ko direct JSON dene ke liye force karega
+        }
       })
     });
 
@@ -42,7 +45,6 @@ Rules: real books on Amazon India, standard books for this exam.`
       return { statusCode: response.status || 400, headers, body: JSON.stringify({ error: data.error?.message || "API Error" }) };
     }
 
-    // Gemini ke text ko saaf karne ka pakka jugaad
     let rawText = data.candidates[0].content.parts[0].text.trim();
     rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
     
