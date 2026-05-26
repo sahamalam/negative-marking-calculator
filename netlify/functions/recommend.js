@@ -17,12 +17,20 @@ exports.handler = async function (event, context) {
 
     console.log("Fetching books via Free Hugging Face AI for:", examName);
 
-    // 🚀 Using Meta Llama-3 via Serverless Hugging Face API (No Auth Needed for basic hits)
+    // 🚀 Llama-3 Model URL
     const url = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct";
     
+    // 🛠️ FIX: Netlify dashboard se token uthana aur use pass karna
+    const hfToken = process.env.HF_API_KEY;
+    const requestHeaders = { 'Content-Type': 'application/json' };
+    
+    if (hfToken) {
+      requestHeaders['Authorization'] = `Bearer ${hfToken}`;
+    }
+
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: requestHeaders, // ✅ Ab yahan sahi chabi pass ho rahi hai
       body: JSON.stringify({
         inputs: `<|begin_of_text|><|start_header_id|>system<|end_header_id|>
         You are a JSON generator. Return a raw JSON array containing exactly 3 top books for the Indian exam requested. 
@@ -32,6 +40,12 @@ exports.handler = async function (event, context) {
     });
 
     const data = await response.json();
+    
+    // Agar Hugging Face ne koi error diya toh use catch mein bhejo
+    if (data.error) {
+       throw new Error(`HF API Error: ${data.error}`);
+    }
+
     let rawText = "";
 
     if (data && data.generated_text) {
