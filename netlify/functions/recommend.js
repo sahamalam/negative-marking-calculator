@@ -27,7 +27,7 @@ exports.handler = async function (event, context) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'examName missing' }) };
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
     const response = await fetch(url, {
       method: 'POST',
