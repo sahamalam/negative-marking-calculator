@@ -13,8 +13,16 @@ exports.handler = async function (event, context) {
     return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
+  // ── 🛠️ AAPKE CONSOLE LOGS ───────────────────────────────────
+  console.log("=== NEW REQUEST RECEIVED ===");
+  console.log("Function called successfully!");
+  console.log("API Key exists in process.env:", !!process.env.GEMINI_API_KEY);
+  // ────────────────────────────────────────────────────────────
+
   try {
     const { examName } = JSON.parse(event.body);
+    console.log("Received Exam Name:", examName); // Yeh bhi print kar lete hain check karne ke liye
+
     if (!examName) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'examName missing' }) };
     }
@@ -27,32 +35,30 @@ exports.handler = async function (event, context) {
       body: JSON.stringify({
         contents: [{ parts: [{ text:
           `List 3 best books for the Indian competitive exam: "${examName}".
-          Provide the output ONLY as a raw JSON array. Do not include any introductory or concluding text. Do not wrap the code in markdown blocks.
-          Use this exact format:
-          [{"title": "Book Title - Author", "search": "short amazon search query"}, {"title": "Book Title - Author", "search": "short amazon search query"}, {"title": "Book Title - Author", "search": "short amazon search query"}]`
+          Provide the output ONLY as a raw JSON array. Do not wrap in markdown code blocks.
+          Format: [{"title": "Book Title - Author", "search": "short amazon search query"}]`
         }]}],
         generationConfig: { 
           temperature: 0.2, 
           maxOutputTokens: 300
-          // 🛠️ REMOVED: responseMimeType hata diya taaki 400 error aana band ho jaye
         }
       })
     });
 
+    console.log("Gemini API Response Status:", response.status); // Google ka status code dekhenge
+
     const data = await response.json();
 
     if (!response.ok || data.error) {
+      console.error("Gemini API Error Detail:", data.error);
       return { statusCode: response.status || 400, headers, body: JSON.stringify({ error: data.error?.message || "API Error" }) };
     }
 
     let rawText = data.candidates[0].content.parts[0].text.trim();
-    
-    // 🛠️ SUPER CLEANING: Agar Gemini galti se markdown block ```json bhi de de, toh use saaf karein
-    if (rawText.includes("```")) {
-      rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
-    }
+    rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
     
     const cleanJson = JSON.parse(rawText);
+    console.log("Successfully parsed JSON array length:", cleanJson.length);
 
     return {
       statusCode: 200,
@@ -61,6 +67,7 @@ exports.handler = async function (event, context) {
     };
 
   } catch (error) {
+    console.error("Catch Block Catch Error:", error.message);
     return { statusCode: 500, headers, body: JSON.stringify({ error: error.message }) };
   }
 };
