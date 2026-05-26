@@ -82,6 +82,12 @@ function _0x2df0(_0x3506de, _0x4dd340) {
     // 🛠️ FIX: Set global variable for books-modal.js
     window.currentExamName = examInput.value.trim();
 
+    // ── 🛠️ ASLI FIX: BEYOND THIS POINT BOOKS WILL LOAD ───────────────
+    if (window.nmcFetchStrip) {
+        window.nmcFetchStrip(examInput.value.trim());
+    }
+    // ─────────────────────────────────────────────────────────────
+
     document.getElementById("resultModal").style.display = "flex";
 });
 
@@ -279,7 +285,7 @@ console.log("Valid Input Received:", payload);
         doc.setTextColor(0, 0, 0);
         doc.text(`${row.field}:`, 15, startY + 7);
         doc.text(row.value.toString(), 100, startY + 7);
-        startY += 10;
+        doc.startY += 10;
     });
 
     doc.line(10, startY + 5, 200, startY + 5);
@@ -343,65 +349,61 @@ console.log("Valid Input Received:", payload);
         });
 
         // Add recommendations below the chart
-let recY = pieChartY + chartHeight + 15;
-doc.setFontSize(12);
-doc.setFont("times", "bold");
-doc.text("Recommendations:", 10, recY);
-doc.setFontSize(12);
-doc.setFont("times", "normal");
+        let recY = pieChartY + chartHeight + 15;
+        doc.setFontSize(12);
+        doc.setFont("times", "bold");
+        doc.text("Recommendations:", 10, recY);
+        doc.setFontSize(12);
+        doc.setFont("times", "normal");
 
-// Handle text wrapping for recommendations
-recommendations.forEach((rec, index) => {
-    recY += 5;
+        // Handle text wrapping for recommendations
+        recommendations.forEach((rec, index) => {
+            recY += 5;
 
-    const splitText = doc.splitTextToSize(`${index + 1}. ${rec}`, 180); // Wrap text to fit within 180 width
-    splitText.forEach((line) => {
-        if (recY > doc.internal.pageSize.getHeight() - 20) {
-            doc.addPage(); // Add a new page if we exceed the current page height
-            recY = 20; // Reset starting Y position on the new page
-        }
-        doc.text(line, 10, recY); // Write the wrapped line
-        recY += 5; // Line spacing
-    });
-});
+            const splitText = doc.splitTextToSize(`${index + 1}. ${rec}`, 180); // Wrap text to fit within 180 width
+            splitText.forEach((line) => {
+                if (recY > doc.internal.pageSize.getHeight() - 20) {
+                    doc.addPage(); // Add a new page if we exceed the current page height
+                    recY = 20; // Reset starting Y position on the new page
+                }
+                doc.text(line, 10, recY); // Write the wrapped line
+                recY += 5; // Line spacing
+            });
+        });
     
         /// Footer
-const pageHeight = doc.internal.pageSize.getHeight();
-const footerY = pageHeight - 20;
-const thankYouY = pageHeight - 10; // same as before
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const footerY = pageHeight - 20;
+        const thankYouY = pageHeight - 10; // same as before
 
-// Developer and Date
-doc.setFontSize(12);
-doc.text("Developed by Saham Alam", 10, footerY);
-doc.text(`${currentDateTime}`, 140, footerY);
+        // Developer and Date
+        doc.setFontSize(12);
+        doc.text("Developed by Saham Alam", 10, footerY);
+        doc.text(`${currentDateTime}`, 140, footerY);
 
-// Thank you + Report ID on same line
-doc.setFont("times", "normal");
-doc.text("Thank you for using the Negative Marking Calculator!", 10, thankYouY);
+        // Thank you + Report ID on same line
+        doc.setFont("times", "normal");
+        doc.text("Thank you for using the Negative Marking Calculator!", 10, thankYouY);
 
-// Generate Report ID
-const uniqueID = `NMC-${Date.now().toString().slice(-6)}-${Math.floor(1000 + Math.random() * 9000)}`;
+        // Generate Report ID
+        const uniqueID = `NMC-${Date.now().toString().slice(-6)}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-// Add Report ID to same line, right-aligned
-doc.setFont("times", "normal");
-doc.text(`Report ID: ${uniqueID}`, 140, thankYouY);  // adjust X=140 if overlapping
+        // Add Report ID to same line, right-aligned
+        doc.setFont("times", "normal");
+        doc.text(`Report ID: ${uniqueID}`, 140, thankYouY);  // adjust X=140 if overlapping
     
         // Save PDF
         doc.save("negative_marking_calculator_result.pdf");
     }, 1000);    
   
 
-
-
     // Close the modal after download
     closeModal();
-  }
+}
   
-  
-  // Global variables to store username and course name
+// Global variables to store username and course name
 let username = '';
 let courseName = '';
-
 
 document.addEventListener("DOMContentLoaded", function () {
     // Get modal and link elements
@@ -425,5 +427,4 @@ document.addEventListener("DOMContentLoaded", function () {
         modal.style.display = "none";
       }
     }
-  });
-  
+});
