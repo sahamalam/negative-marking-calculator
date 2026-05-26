@@ -82,7 +82,13 @@ function _0x2df0(_0x3506de, _0x4dd340) {
     // 🛠️ FIX: Set global variable for books-modal.js
     window.currentExamName = examInput.value.trim();
 
-    document.getElementById("resultModal").style.display = "flex";
+ // 🛠️ ISS LINE KE THEEK NEECHE YAHAN PASTE KAR DO:
+ const examInputName = document.getElementById("examName")?.value || "";
+ if (window.nmcFetchStrip) {
+     window.nmcFetchStrip(examInputName);
+ }
+
+ document.getElementById("resultModal").style.display = "flex";
 });
 
 
