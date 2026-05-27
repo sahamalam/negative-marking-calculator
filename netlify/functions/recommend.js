@@ -1,5 +1,3 @@
-const fetch = require('node-fetch'); // Agar node-fetch use ho raha ho
-
 exports.handler = async function (event, context) {
   // 1. Sabhi tareeqe ke Requests ko allow karne ke liye Headers
   const headers = {
@@ -45,6 +43,7 @@ exports.handler = async function (event, context) {
       requestHeaders['Authorization'] = `Bearer ${hfToken}`;
     }
 
+    // ✅ Yahan in-built global fetch use hoga bina kisi dikkat ke
     const response = await fetch(url, {
       method: 'POST',
       headers: requestHeaders,
