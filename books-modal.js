@@ -1,10 +1,6 @@
-// ============================================================
-// books-modal.js — Asli Dynamic AI Connected Version 🚀
-// ============================================================
-
 const NMC_TAG = "nmc007-21"; 
 
-// ── 1. CSS Injection (For Beautiful Layout) ───────────────────
+// ── 1. CSS Injection (Sundar Boxes ke Liye) ───────────────────
 const _nmcStyle = document.createElement("style");
 _nmcStyle.textContent = `
   #nmc-book-strip { 
@@ -58,7 +54,6 @@ document.head.appendChild(_nmcStyle);
 // ── 2. DOM Injector ───────────────────────────────────────────
 function injectBookStrip() {
   if (document.getElementById("nmc-book-strip")) return;
-
   const modalContent = document.querySelector("#resultModal .modal-content") || document.querySelector(".modal-content");
   
   if (modalContent) {
@@ -68,7 +63,6 @@ function injectBookStrip() {
       <div class="nmc-strip-title">📚 AI Recommended Study Materials</div>
       <div id="nmc-strip-books">Loading best books via AI...</div>
     `;
-
     const btnContainer = modalContent.querySelector(".button-container");
     if (btnContainer) {
         modalContent.insertBefore(strip, btnContainer);
@@ -82,28 +76,25 @@ function nmcURL(q) {
   return `https://www.amazon.in/s?k=${encodeURIComponent(q)}&tag=${NMC_TAG}`;
 }
 
-// ── 3. Asli Trigger Function (Calling Netlify Backend) ────────
+// ── 3. Asli Trigger Function ───────────────────────────
 window.nmcFetchStrip = async function (examName) {
   injectBookStrip();
-
   const booksContainer = document.getElementById("nmc-strip-books");
   if (!booksContainer) return;
 
   const cleanExam = examName || "Competitive Exam";
 
   try {
-    // 🚀 Calling your Netlify backend function
-    const response = await fetch('/.netlify/functions/recommend', {
+    // 🎯 Brief 2 Fix: Ab hum bina kisi 405 error ke chota Proxy URL call kar rahe hain
+    const response = await fetch('/api/recommend', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ examName: cleanExam })
     });
 
     if (!response.ok) throw new Error("Backend failed");
-    
     const booksData = await response.json();
     
-    // HTML Generate karne ka loop
     let htmlContent = "";
     booksData.forEach((book) => {
       htmlContent += `
@@ -114,12 +105,11 @@ window.nmcFetchStrip = async function (examName) {
         </a>
       `;
     });
-
     booksContainer.innerHTML = htmlContent;
 
   } catch (error) {
     console.log("Fallback triggered:", error.message);
-    // Dynamic fallback agar backend bilkul na chale
+    // Agar AI fail ho toh user ko khali na dikhe, isliye fallback links:
     booksContainer.innerHTML = `
       <a class="nmc-book-item" href="${nmcURL(cleanExam + ' best books guide')}" target="_blank" rel="noopener">
         <span style="font-size:18px !important;">📚</span>

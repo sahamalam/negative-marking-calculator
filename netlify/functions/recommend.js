@@ -1,49 +1,39 @@
 exports.handler = async function (event, context) {
-  // 1. Sabhi tareeqe ke Requests ko allow karne ke liye Headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
 
-  // 2. Pre-flight/OPTIONS request ko gate par hi pass karo (Taaki 405 na aaye)
   if (event.httpMethod === 'OPTIONS') {
-    return { 
-      statusCode: 200, 
-      headers, 
-      body: '' 
-    };
+    return { statusCode: 200, headers, body: '' };
   }
 
-  // 3. Agar request POST nahi hai toh handle karo (Extra Suraksha)
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
       headers,
-      body: JSON.stringify({ error: `Method ${event.httpMethod} Not Allowed. Please use POST.` })
+      body: JSON.stringify({ error: `Method ${event.httpMethod} Not Allowed.` })
     };
   }
 
   try {
     if (!event.body) throw new Error("Missing request body");
-    
     const { examName } = JSON.parse(event.body);
     if (!examName) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'examName missing' }) };
     }
 
     console.log("Fetching books via Free Hugging Face AI for:", examName);
-
     const url = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct";
     
     const hfToken = process.env.HF_API_KEY;
     const requestHeaders = { 'Content-Type': 'application/json' };
-    
     if (hfToken) {
       requestHeaders['Authorization'] = `Bearer ${hfToken}`;
     }
 
-    // ✅ Yahan in-built global fetch use hoga bina kisi dikkat ke
+    // Global in-built fetch ka use
     const response = await fetch(url, {
       method: 'POST',
       headers: requestHeaders,
@@ -56,10 +46,7 @@ exports.handler = async function (event, context) {
     });
 
     const data = await response.json();
-    
-    if (data.error) {
-       throw new Error(`HF API Error: ${data.error}`);
-    }
+    if (data.error) throw new Error(`HF API Error: ${data.error}`);
 
     let rawText = "";
     if (data && data.generated_text) {
@@ -71,7 +58,6 @@ exports.handler = async function (event, context) {
     }
 
     rawText = rawText.trim().replace(/```json/g, "").replace(/```/g, "").trim();
-    
     const jsonMatch = rawText.match(/\[\s*\{[\s\S]*\}\s*\]/);
     if (!jsonMatch) throw new Error("JSON regex failed");
 
@@ -86,7 +72,6 @@ exports.handler = async function (event, context) {
 
   } catch (error) {
     console.error("HF Error, triggering static fallback:", error.message);
-    
     const { examName } = JSON.parse(event.body || "{}");
     const cleanExam = examName || "Competitive Exam";
     return {
