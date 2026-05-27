@@ -451,18 +451,13 @@ background-color: #FF6600
 
 /* Popup message styling */
 .popup-message {
-  display: none; /* Hidden by default */
-  position: fixed; /* Fixed position */
-  top: 50%; /* Center vertically */
-  left: 50%; /* Center horizontally */
-  transform: translate(-50%, -50%); /* Adjust position to center */
-  background-color: rgba(0, 0, 0, 0.75); /* Semi-transparent background */
-  color: white; /* Text color */
-  padding: 5px 10px; /* Padding around the text */
-  border-radius: 5px; /* Rounded corners */
-  z-index: 1000; /* Ensure it's on top */
-  transition: opacity 0.3s ease; /* Smooth transition */
-  opacity: 0; /* Start hidden */
+  display: none;
+  background: #333;
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-top: 4px;
 }
 
 /* Show the popup message when active */
@@ -470,30 +465,16 @@ background-color: #FF6600
   display: block; /* Show the popup */
   opacity: 1; /* Fully visible */
 }
-/* Responsive design for smaller screens */
-@media (max-width: 600px) {
-  .popup-message {
-    width: 80%; /* Make it responsive */
-    padding: 5px; /* Adjust padding */
-  }
-}
 
 /* Popup message styling */
 .popup-message {
-  display: none; /* Hidden by default */
-  position: fixed; /* Fixed position */
-  top: 10%; /* Center vertically */
-  left: 50%; /* Center horizontally */
-  transform: translate(-50%, -50%); /* Adjust position to center */
-  background-color: rgba(0, 0, 0, 1); /* Semi-transparent background */
-  color: white; /* Text color */
-  font-size: 16px;
-  font-weight: bold;
-  padding: 10px 10px; /* Padding around the text */
-  border-radius: 5px; /* Rounded corners */
-  z-index: 1000; /* Ensure it's on top */
-  transition: opacity 0.3s ease; /* Smooth transition */
-  opacity: 0; /* Start hidden */
+  display: none;
+  background: #333;
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-top: 4px;
 }
 .coffee {
   font-weight: bold;

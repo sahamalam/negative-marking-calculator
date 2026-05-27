@@ -239,7 +239,7 @@
     <!--- <img src="path-to-your-qr-code.png" alt="QR Code" style="max-width: 100%; height: auto;"> --->
   </div>
 </div>
- Gpay 9554 137 134 <i class="far fa-copy copy-icon" onclick="copyToClipboard(9554137134)" style="cursor: pointer;"></i><div id="popup" class="popup-message">UPI number of Gpay/ Paytm/ PhonePe successfully copied </div>
+Gpay 9554 137 134 <i class="far fa-copy copy-icon" onclick="copyToClipboard(9554137134)" style="cursor: pointer;"></i> <button onclick="document.getElementById('gpayQrModal').classList.add('open')" style="background:none;border:1.5px solid #ddd;border-radius:8px;width:32px;height:32px;cursor:pointer;padding:0;vertical-align:middle;display:inline-flex;align-items:center;justify-content:center;margin-left:2px;"><svg width="18" height="18" viewBox="0 0 100 100" fill="none"><rect x="5" y="5" width="35" height="35" rx="4" stroke="#111" stroke-width="8" fill="none"/><rect x="17" y="17" width="11" height="11" rx="1" fill="#111"/><rect x="60" y="5" width="35" height="35" rx="4" stroke="#111" stroke-width="8" fill="none"/><rect x="72" y="17" width="11" height="11" rx="1" fill="#111"/><rect x="5" y="60" width="35" height="35" rx="4" stroke="#111" stroke-width="8" fill="none"/><rect x="17" y="72" width="11" height="11" rx="1" fill="#111"/><rect x="62" y="62" width="11" height="11" rx="2" fill="#111"/><rect x="78" y="62" width="11" height="11" rx="2" fill="#111"/><rect x="62" y="78" width="11" height="11" rx="2" fill="#111"/><rect x="78" y="78" width="11" height="11" rx="2" fill="#111"/></svg></button><div id="popup" class="popup-message">UPI number of Gpay/ Paytm/ PhonePe successfully copied </div>
   </div>
   <!-- #endregion -->
     <div class="container">
@@ -250,6 +250,78 @@
 <div id="container-5e2260566fc5fdc12d4386ce50faaaad"></div>
 <script src="main.js"></script>
 <script src="books-modal.js"></script>
+<!-- GPay QR Modal -->
+<div id="gpayQrModal" onclick="if(event.target===this)this.classList.remove('open')" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:99999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:20px;padding:28px 24px 24px;width:88%;max-width:320px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.25);animation:gpaySlideUp 0.22s ease;">
+    <button onclick="document.getElementById('gpayQrModal').classList.remove('open')" style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;color:#888;cursor:pointer;font-family:'Nunito',sans-serif;">✕</button>
+    <p style="font-size:17px;font-weight:700;color:#1a1a1a;margin-bottom:2px;padding:0;">Pay using any UPI app</p>
+    <p style="font-size:14px;color:#555;margin-bottom:16px;padding:0;">9554 137 134</p>
+    <img id="gpayQrImg" crossorigin="anonymous"
+      src="/?size=400x400&data=upi://pay?pa=9554137134%40oksbi&pn=Saham%20Alam&cu=INR"
+      style="width:100%;border-radius:8px;display:block;margin-bottom:16px;" alt="GPay QR Code">
+    <div style="display:flex;gap:10px;">
+      <button onclick="gpayQrSave()" style="flex:1;padding:12px;background:#1a73e8;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;">💾 Save</button>
+      <button onclick="gpayQrShare()" style="flex:1;padding:12px;background:#34a853;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;">🔗 Share</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  #gpayQrModal.open { display:flex !important; }
+  @keyframes gpaySlideUp {
+    from { transform:translateY(28px);opacity:0; }
+    to   { transform:translateY(0);opacity:1; }
+  }
+</style>
+
+<script>
+const _upiId = '9554137134@oksbi';
+
+function gpayQrSave() {
+  const img = document.getElementById('gpayQrImg');
+  const c = document.createElement('canvas');
+  c.width = c.height = 400;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0,0,400,400);
+  ctx.drawImage(img,0,0,400,400);
+  c.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'gpay-qr.png';
+    a.click();
+  }, 'image/png');
+}
+
+async function gpayQrShare() {
+  const img = document.getElementById('gpayQrImg');
+  await new Promise(r => img.complete ? r() : img.onload = r);
+  const pad=28, qs=260;
+  const cw=qs+pad*2, ch=qs+pad*2+56;
+  const c = document.createElement('canvas');
+  c.width=cw; c.height=ch;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,cw,ch);
+  ctx.drawImage(img,pad,pad,qs,qs);
+  ctx.fillStyle='#111'; ctx.font='bold 17px Nunito,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('Pay using any UPI app', cw/2, qs+pad+24);
+  ctx.fillStyle='#1a73e8'; ctx.font='15px Nunito,sans-serif';
+  ctx.fillText(_upiId, cw/2, qs+pad+46);
+  c.toBlob(async blob => {
+    try {
+      const file = new File([blob],'gpay-qr.png',{type:'image/png'});
+      if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})) {
+        await navigator.share({files:[file], text:'Pay using any UPI app: '+_upiId});
+      } else if(navigator.share) {
+        await navigator.share({text:'Pay using any UPI app: '+_upiId});
+      } else {
+        navigator.clipboard.writeText(_upiId);
+        alert('UPI ID copied!');
+      }
+    } catch(e) { if(e.name!=='AbortError') alert('Share failed'); }
+  },'image/png');
+}
+</script>
 </body>
 
 </html>
