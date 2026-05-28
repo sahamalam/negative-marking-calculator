@@ -1,67 +1,78 @@
 exports.handler = async function (event, context) {
+  // 1. Safe CORS Headers taaki browser block na kare
   const headers = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept',
   };
 
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };
   }
 
-  let fallbackExam = "Competitive Exam";
-
   try {
-    const { examName } = JSON.parse(event.body || "{}");
-    fallbackExam = examName || "Competitive Exam";
+    if (!event.body) throw new Error("No body found");
+    const { examName } = JSON.parse(event.body);
+    if (!examName) return { statusCode: 400, headers, body: JSON.stringify({ error: 'examName missing' }) };
 
-    console.log("Processing:", fallbackExam);
+    console.log("Processing via Stable Gemini API for:", examName);
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error("No API key");
+    // 🔑 Netlify Dashboard par environment variable ka naam GEMINI_API_KEY hona chahiye
+    const apiKey = process.env.GEMINI_API_KEY; 
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY missing in Netlify Environment Variables");
+    }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // 🚀 Direct Stable v1 URL (No SDK, No Version Bug)
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
-    const res = await fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: `Return a JSON array of exactly 3 books for "${fallbackExam}" Indian exam.
-Format: [{"title":"Book - Author","search":"amazon query"}]
-Only return the JSON array, nothing else.`
+            text: `You are a JSON generator. Return a raw JSON array containing exactly 3 top books for the Indian exam: "${examName}". Use this exact format: [{"title": "Book Name - Author", "search": "amazon query"}]. Do not write markdown blocks like \`\`\`json, introductions, or explanations. Only return valid JSON array.`
           }]
-        }],
-        generationConfig: { temperature: 0.2, maxOutputTokens: 200 }
+        }]
       })
     });
 
-    const data = await res.json();
-
-    if (data.error) {
-      console.error("Gemini error:", data.error.message);
-      throw new Error(data.error.message);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error?.message || "Gemini API Response Error");
     }
 
-    const text = data.candidates[0].content.parts[0].text.trim();
-    const match = text.match(/\[\s*\{[\s\S]*\}\s*\]/);
-    if (!match) throw new Error("JSON parse failed");
+    // Gemini ke response se text nikalna
+    let rawText = data.candidates[0].content.parts[0].text;
+    
+    // Agar Gemini galti se markdown blocks laga de, toh use saaf karna
+    rawText = rawText.trim().replace(/```json/g, "").replace(/```/g, "").trim();
+    
+    const jsonMatch = rawText.match(/\[\s*\{[\s\S]*\}\s*\]/);
+    if (!jsonMatch) throw new Error("JSON parsing failed from Gemini response");
 
-    const books = JSON.parse(match[0]);
-    console.log("Success:", books.length, "books found");
+    return { 
+      statusCode: 200, 
+      headers, 
+      body: JSON.stringify(JSON.parse(jsonMatch[0])) 
+    };
 
-    return { statusCode: 200, headers, body: JSON.stringify(books) };
+  } catch (error) {
+    console.error("Gemini system failed, switching to safe fallback:", error.message);
+    
+    // Backup Data: Agar API key na ho ya Gemini down ho, toh website par ye dikhega
+    let fallbackExam = "Competitive Exam";
+    try { if (event.body) fallbackExam = JSON.parse(event.body).examName || "Competitive Exam"; } catch(e) {}
 
-  } catch (err) {
-    console.error("Error:", err.message);
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify([
-        { title: `${fallbackExam} - Top Recommended Books`, search: `${fallbackExam} best books` },
-        { title: `${fallbackExam} - Previous Year Papers`, search: `${fallbackExam} solved papers` },
-        { title: `${fallbackExam} - Complete Study Guide`, search: `${fallbackExam} study guide` }
+        {"title": `Best Recommended Guide Books for ${fallbackExam}`, "search": `${fallbackExam} exam best books`},
+        {"title": `${fallbackExam} Previous Years Solved Papers`, "search": `${fallbackExam} solved papers`},
+        {"title": `${fallbackExam} Mock Tests & Practice Set Pack`, "search": `${fallbackExam} practice set`}
       ])
     };
   }
