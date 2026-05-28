@@ -23,7 +23,7 @@ exports.handler = async function (event, context) {
       console.log("AI Processing Book Recommendations for:", examName);
   
       // Hugging Face AI Model URL
-      const url = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct";
+      const url = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
       const hfToken = process.env.HF_API_KEY;
       const requestHeaders = { 'Content-Type': 'application/json' };
       
