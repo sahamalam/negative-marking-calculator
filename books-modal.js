@@ -86,7 +86,8 @@ window.nmcFetchStrip = async function (examName) {
 
   try {
     // 🎯 Brief 2 Fix: Ab hum bina kisi 405 error ke chota Proxy URL call kar rahe hain
-    const response = await fetch('/api/recommend', {
+    //  Naya Code (Ab GitHub bhi Netlify ke backend se connect ho jayega)
+const response = await fetch('https://aesthetic-babka-0eb571.netlify.app/api/recommend', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ examName: cleanExam })
