@@ -275,7 +275,7 @@ Gpay 9554 137 134 <i class="far fa-copy copy-icon" onclick="copyToClipboard(9554
 </style>
 
 <script>
-const _upiId = '9554137134@oksbi';
+const _upiId = '9554137134@ptsbi';
 
 function gpayQrSave() {
   const img = document.getElementById('gpayQrImg');
@@ -299,30 +299,52 @@ function gpayQrSave() {
 async function gpayQrShare() {
   const img = document.getElementById('gpayQrImg');
   await new Promise(r => img.complete ? r() : img.onload = r);
-  const pad=28, qs=260;
-  const cw=qs+pad*2, ch=qs+pad*2+56;
+  
+  // 🚀 MAGIC TRICK: Image ka asli size nikaalo aur scaling factor tay karo
+  const qw = img.naturalWidth || img.width || 260;
+  const qh = img.naturalHeight || img.height || 260;
+  
+  // Base size 260 ke mukable aapki image kitni badi hai (e.g., 2x ya 3x)
+  const scale = qw / 260; 
+
+  // Saari cheezein ab scale ke mutabik automatic badi ya choti hongi
+  const pad = 28 * scale;
+  const cw = qw + pad * 2;
+  const ch = qh + pad * 2 + (56 * scale);
+  
   const c = document.createElement('canvas');
-  c.width=cw; c.height=ch;
+  c.width = cw; c.height = ch;
   const ctx = c.getContext('2d');
-  ctx.fillStyle='#fff'; ctx.fillRect(0,0,cw,ch);
-  ctx.drawImage(img,pad,pad,qs,qs);
-  ctx.fillStyle='#111'; ctx.font='bold 17px Nunito,sans-serif'; ctx.textAlign='center';
-  ctx.fillText('Pay using any UPI app', cw/2, qs+pad+24);
-  ctx.fillStyle='#1a73e8'; ctx.font='15px Nunito,sans-serif';
-  ctx.fillText(_upiId, cw/2, qs+pad+46);
+  
+  // Background paint kiya
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cw, ch);
+  
+  // Asli size par bina dabaye QR draw kiya
+  ctx.drawImage(img, pad, pad, qw, qh);
+  
+  // Font size aur positions ko bhi scale kiya taaki text chota na pad jaye
+  ctx.fillStyle = '#111'; 
+  ctx.font = `bold ${Math.round(17 * scale)}px Nunito,sans-serif`; 
+  ctx.textAlign = 'center';
+  ctx.fillText('Pay using any UPI app', cw / 2, qh + pad + (24 * scale));
+  
+  ctx.fillStyle = '#1a73e8'; 
+  ctx.font = `${Math.round(15 * scale)}px Nunito,sans-serif`;
+  ctx.fillText(_upiId, cw / 2, qh + pad + (46 * scale));
+  
   c.toBlob(async blob => {
     try {
-      const file = new File([blob],'gpay-qr.png',{type:'image/png'});
+      const file = new File([blob], 'gpay-qr.png', {type: 'image/png'});
       if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})) {
-        await navigator.share({files:[file], text:'Pay using any UPI app: '+_upiId});
+        await navigator.share({files:[file], text: 'Pay using any UPI app: ' + _upiId});
       } else if(navigator.share) {
-        await navigator.share({text:'Pay using any UPI app: '+_upiId});
+        await navigator.share({text: 'Pay using any UPI app: ' + _upiId});
       } else {
         navigator.clipboard.writeText(_upiId);
         alert('UPI ID copied!');
       }
-    } catch(e) { if(e.name!=='AbortError') alert('Share failed'); }
-  },'image/png');
+    } catch(e) { if(e.name !== 'AbortError') alert('Share failed'); }
+  }, 'image/png');
 }
 </script>
 </body>
