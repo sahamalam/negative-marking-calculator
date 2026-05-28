@@ -5,7 +5,7 @@ const _nmcStyle = document.createElement("style");
 _nmcStyle.textContent = `
   #nmc-book-strip { 
     margin: 20px 0 !important; 
-    border-top: 2px dashed #FB5416 !important; 
+    
     padding-top: 15px !important; 
     width: 100% !important; 
     display: block !important;
@@ -16,7 +16,7 @@ _nmcStyle.textContent = `
     font-weight: 700 !important; 
     color: #FB5416 !important; 
     margin-bottom: 12px !important; 
-    text-align: left !important;
+    
   }
   .nmc-book-item { 
     display: flex !important; 
