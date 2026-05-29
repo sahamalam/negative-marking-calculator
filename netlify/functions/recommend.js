@@ -24,7 +24,8 @@ exports.handler = async function (event, context) {
     }
 
     // 🚀 Direct Stable v1 URL (No SDK, No Version Bug)
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // Netlify functions wale recommend.js mein ye URL daal do, ye bilkul FREE chalega:
+const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
       method: 'POST',
