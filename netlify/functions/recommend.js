@@ -32,14 +32,15 @@ exports.handler = async function (event, context) {
         messages: [
           {
             role: "system",
-            content: "You are a database API that ONLY outputs a raw JSON array of 3 books. Never include markdown formatting like ```json, never write intro/outro text, never explain anything. Just output the raw [ ] array."
+            content: "You are a database API that ONLY outputs a raw JSON array of 3 books. Never include markdown formatting like ```json, never write intro/outro text. Just output the raw [ ] array."
           },
           {
             role: "user",
             content: `Provide exactly 3 top books for: "${examName}". Format: [{"title": "Book Title - Author", "search": "amazon search query"}].`
           }
         ],
-        temperature: 0.1
+        temperature: 0.1,
+        max_tokens: 250 // 🔥 YEH ZAROORI THA! Isse AI ko poora jawab likhne ka space milega
       })
     });
 
@@ -47,11 +48,9 @@ exports.handler = async function (event, context) {
     if (!response.ok) throw new Error(data.error?.message || "GitHub AI Error");
 
     let rawText = data.choices[0].message.content.trim();
-    
-    // 🔍 Yeh line Netlify log mein dikhayegi ki AI ne asliyat mein kya bheja hai
     console.log("ASLI AI RESPONSE:", rawText);
 
-    // Try 1: Standard JSON extraction using brackets
+    // Standard JSON extraction using brackets
     const startIdx = rawText.indexOf('[');
     const endIdx = rawText.lastIndexOf(']');
 
@@ -61,22 +60,16 @@ exports.handler = async function (event, context) {
       return { statusCode: 200, headers, body: JSON.stringify(parsedData) };
     }
 
-    // 🔥 Try 2: SMART TEXT PARSER (Agar AI ne JSON ke badle plain text list bhej di ho)
+    // Smart Text Parser (Fallback)
     console.log("JSON brackets missing. Running Smart Text-to-JSON Converter...");
-    
-    // Text ko lines mein todo aur faltu empty lines hatao
     const lines = rawText.split('\n')
-      .map(l => l.replace(/^[^a-zA-Z0-9]+/, '').trim()) // Aage ke numbers/bullets (1., -, *) hatao
-      .filter(l => l.length > 10); // Bahut chhoti lines hatao
+      .map(l => l.replace(/^[^a-zA-Z0-9]+/, '').trim())
+      .filter(l => l.length > 10);
 
     if (lines.length >= 2) {
       const customBooks = lines.slice(0, 3).map(line => {
-        // Line se clean title banao
         const cleanTitle = line.replace(/["']/g, "").substring(0, 60);
-        return {
-          title: cleanTitle,
-          search: cleanTitle.toLowerCase()
-        };
+        return { title: cleanTitle, search: cleanTitle.toLowerCase() };
       });
       return { statusCode: 200, headers, body: JSON.stringify(customBooks) };
     }
