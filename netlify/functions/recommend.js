@@ -14,14 +14,13 @@ exports.handler = async function (event, context) {
     const { examName } = JSON.parse(event.body);
     if (!examName) return { statusCode: 400, headers, body: JSON.stringify({ error: 'examName missing' }) };
 
-    console.log("Processing via GitHub Free AI for:", examName);
+    console.log("Processing via Robust GitHub AI for:", examName);
 
     const token = process.env.GITHUB_TOKEN; 
     if (!token) {
       throw new Error("GITHUB_TOKEN missing in Netlify Environment Variables");
     }
 
-    // 🚀 GitHub Models Official API Endpoint
     const url = "https://models.inference.ai.azure.com/chat/completions";
 
     const response = await fetch(url, {
@@ -31,12 +30,18 @@ exports.handler = async function (event, context) {
         'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
-        model: "meta-llama-3.1-8b-instruct", // 🔥 100% Free, Super Fast Premium AI Model
-        messages: [{
-          role: "user",
-          content: `You are a JSON generator. Return a raw JSON array containing exactly 3 top books for the Indian exam: "${examName}". Use this exact format: [{"title": "Book Name - Author", "search": "amazon query"}]. Do not write markdown blocks like \`\`\`json, introductions, or explanations. Only return valid JSON array.`
-        }],
-        temperature: 0.2
+        model: "meta-llama-3.1-8b-instruct",
+        messages: [
+          {
+            role: "system",
+            content: "You are a strict JSON api. You only output a raw JSON array. Never write introductory text, never write markdown blocks, never explain anything."
+          },
+          {
+            role: "user",
+            content: `Return a valid JSON array containing exactly 3 real, top books for the Indian exam: "${examName}". Use this exact structure: [{"title": "Book Name - Author", "search": "amazon query"}]. Output ONLY the raw JSON array.`
+          }
+        ],
+        temperature: 0.1
       })
     });
 
@@ -46,22 +51,28 @@ exports.handler = async function (event, context) {
       throw new Error(data.error?.message || "GitHub AI Error");
     }
 
-    let rawText = data.choices[0].message.content;
-    
-    // Cleanup markdown if AI adds it
-    rawText = rawText.trim().replace(/```json/g, "").replace(/```/g, "").trim();
-    
-    const jsonMatch = rawText.match(/\[\s*\{[\s\S]*\}\s*\]/);
-    if (!jsonMatch) throw new Error("JSON parsing failed from AI response");
+    let rawText = data.choices[0].message.content.trim();
+    console.log("Raw AI Response received successfully");
+
+    // 🔥 BULLETPROOF JSON EXTRACTION: Find the exact start [ and end ]
+    const startIdx = rawText.indexOf('[');
+    const endIdx = rawText.lastIndexOf(']');
+
+    if (startIdx === -1 || endIdx === -1 || endIdx < startIdx) {
+      throw new Error("Valid JSON array format not found in AI response");
+    }
+
+    const cleanJsonString = rawText.substring(startIdx, endIdx + 1);
+    const parsedData = JSON.parse(cleanJsonString);
 
     return { 
       statusCode: 200, 
       headers, 
-      body: JSON.stringify(JSON.parse(jsonMatch[0])) 
+      body: JSON.stringify(parsedData) 
     };
 
   } catch (error) {
-    console.error("AI system failed, switching to safe fallback:", error.message);
+    console.error("AI Parser caught an issue, deploying safe fallback:", error.message);
     
     let fallbackExam = "Competitive Exam";
     try { if (event.body) fallbackExam = JSON.parse(event.body).examName || "Competitive Exam"; } catch(e) {}
