@@ -1,4 +1,5 @@
 exports.handler = async function (event, context) {
+  // 1. Safe CORS Headers taaki browser block na kare
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
@@ -14,57 +15,55 @@ exports.handler = async function (event, context) {
     const { examName } = JSON.parse(event.body);
     if (!examName) return { statusCode: 400, headers, body: JSON.stringify({ error: 'examName missing' }) };
 
-    console.log("Processing via Highly Accurate AI for:", examName);
+    console.log("Processing via Stable Gemini API for:", examName);
 
-    const token = process.env.GITHUB_TOKEN; 
-    if (!token) throw new Error("GITHUB_TOKEN missing");
+    // ?? Netlify Dashboard par environment variable ka naam GEMINI_API_KEY hona chahiye
+    const apiKey = process.env.GEMINI_API_KEY; 
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY missing in Netlify Environment Variables");
+    }
 
-    const url = "https://models.inference.ai.azure.com/chat/completions";
+    // ?? Direct Stable v1 URL (No SDK, No Version Bug)
+    // Netlify functions wale recommend.js mein ye URL daal do, ye bilkul FREE chalega:
+const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: "meta-llama-3.1-8b-instruct",
-        messages: [
-          {
-            role: "system",
-            content: "You are a strict, highly accurate Indian competitive exams database API. You ONLY output a raw JSON array of 3 books. CRITICAL: Never invent fake book titles or wrong authors. Only recommend real, highly popular, and existing books from well-known publishers like Arihant, Kiran Publication, Disha, McGraw Hill, RS Aggarwal, or M. Laxmikanth. Never include markdown formatting like ```json, never write intro/outro text. Output ONLY the raw [ ] array."
-          },
-          {
-            role: "user",
-            content: `Provide exactly 3 real and best-selling books for the exam: "${event.body ? JSON.parse(event.body).examName : examName}". Format: [{"title": "Book Title - Publisher/Author", "search": "amazon search query"}].`
-          }
-        ],
-        temperature: 0.0, // 🔥 Kreativity ZERO! Ab yeh sirf factual data dega
-        max_tokens: 250
+        contents: [{
+          parts: [{
+            text: `You are a JSON generator. Return a raw JSON array containing exactly 3 top books for the Indian exam: "${examName}". Use this exact format: [{"title": "Book Name - Author", "search": "amazon query"}]. Do not write markdown blocks like \`\`\`json, introductions, or explanations. Only return valid JSON array.`
+          }]
+        }]
       })
     });
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || "GitHub AI Error");
-
-    let rawText = data.choices[0].message.content.trim();
-    console.log("ASLI AI RESPONSE:", rawText);
-
-    // Standard JSON extraction using brackets
-    const startIdx = rawText.indexOf('[');
-    const endIdx = rawText.lastIndexOf(']');
-
-    if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
-      const cleanJsonString = rawText.substring(startIdx, endIdx + 1);
-      const parsedData = JSON.parse(cleanJsonString);
-      return { statusCode: 200, headers, body: JSON.stringify(parsedData) };
+    
+    if (!response.ok) {
+      throw new Error(data.error?.message || "Gemini API Response Error");
     }
 
-    throw new Error("AI response format issue");
+    // Gemini ke response se text nikalna
+    let rawText = data.candidates[0].content.parts[0].text;
+    
+    // Agar Gemini galti se markdown blocks laga de, toh use saaf karna
+    rawText = rawText.trim().replace(/```json/g, "").replace(/```/g, "").trim();
+    
+    const jsonMatch = rawText.match(/\[\s*\{[\s\S]*\}\s*\]/);
+    if (!jsonMatch) throw new Error("JSON parsing failed from Gemini response");
+
+    return { 
+      statusCode: 200, 
+      headers, 
+      body: JSON.stringify(JSON.parse(jsonMatch[0])) 
+    };
 
   } catch (error) {
-    console.error("Ultimate Parser Fallback triggered:", error.message);
+    console.error("Gemini system failed, switching to safe fallback:", error.message);
     
+    // Backup Data: Agar API key na ho ya Gemini down ho, toh website par ye dikhega
     let fallbackExam = "Competitive Exam";
     try { if (event.body) fallbackExam = JSON.parse(event.body).examName || "Competitive Exam"; } catch(e) {}
 
@@ -73,8 +72,8 @@ exports.handler = async function (event, context) {
       headers,
       body: JSON.stringify([
         {"title": `Best Recommended Guide Books for ${fallbackExam}`, "search": `${fallbackExam} exam best books`},
-        {"title": `${fallbackExam} Previous Years Solved Papers Pack`, "search": `${fallbackExam} solved papers`},
-        {"title": `${fallbackExam} Top Mock Tests & Practice Set`, "search": `${fallbackExam} practice set`}
+        {"title": `${fallbackExam} Previous Years Solved Papers`, "search": `${fallbackExam} solved papers`},
+        {"title": `${fallbackExam} Mock Tests & Practice Set Pack`, "search": `${fallbackExam} practice set`}
       ])
     };
   }
