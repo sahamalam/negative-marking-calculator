@@ -1,5 +1,4 @@
 exports.handler = async function (event, context) {
-  // 1. Safe CORS Headers taaki browser block na kare
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
@@ -15,44 +14,45 @@ exports.handler = async function (event, context) {
     const { examName } = JSON.parse(event.body);
     if (!examName) return { statusCode: 400, headers, body: JSON.stringify({ error: 'examName missing' }) };
 
-    console.log("Processing via Stable Gemini API for:", examName);
+    console.log("Processing via GitHub Free AI for:", examName);
 
-    // 🔑 Netlify Dashboard par environment variable ka naam GEMINI_API_KEY hona chahiye
-    const apiKey = process.env.GEMINI_API_KEY; 
-    if (!apiKey) {
-      throw new Error("GEMINI_API_KEY missing in Netlify Environment Variables");
+    const token = process.env.GITHUB_TOKEN; 
+    if (!token) {
+      throw new Error("GITHUB_TOKEN missing in Netlify Environment Variables");
     }
 
-    // 🚀 Direct Stable v1 URL (No SDK, No Version Bug)
-    // Netlify functions wale recommend.js mein ye URL daal do, ye bilkul FREE chalega:
-const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    // 🚀 GitHub Models Official API Endpoint
+    const url = "https://models.inference.ai.azure.com/chat/completions";
 
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: `You are a JSON generator. Return a raw JSON array containing exactly 3 top books for the Indian exam: "${examName}". Use this exact format: [{"title": "Book Name - Author", "search": "amazon query"}]. Do not write markdown blocks like \`\`\`json, introductions, or explanations. Only return valid JSON array.`
-          }]
-        }]
+        model: "meta-llama-3.1-8b-instruct", // 🔥 100% Free, Super Fast Premium AI Model
+        messages: [{
+          role: "user",
+          content: `You are a JSON generator. Return a raw JSON array containing exactly 3 top books for the Indian exam: "${examName}". Use this exact format: [{"title": "Book Name - Author", "search": "amazon query"}]. Do not write markdown blocks like \`\`\`json, introductions, or explanations. Only return valid JSON array.`
+        }],
+        temperature: 0.2
       })
     });
 
     const data = await response.json();
     
     if (!response.ok) {
-      throw new Error(data.error?.message || "Gemini API Response Error");
+      throw new Error(data.error?.message || "GitHub AI Error");
     }
 
-    // Gemini ke response se text nikalna
-    let rawText = data.candidates[0].content.parts[0].text;
+    let rawText = data.choices[0].message.content;
     
-    // Agar Gemini galti se markdown blocks laga de, toh use saaf karna
+    // Cleanup markdown if AI adds it
     rawText = rawText.trim().replace(/```json/g, "").replace(/```/g, "").trim();
     
     const jsonMatch = rawText.match(/\[\s*\{[\s\S]*\}\s*\]/);
-    if (!jsonMatch) throw new Error("JSON parsing failed from Gemini response");
+    if (!jsonMatch) throw new Error("JSON parsing failed from AI response");
 
     return { 
       statusCode: 200, 
@@ -61,9 +61,8 @@ const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-
     };
 
   } catch (error) {
-    console.error("Gemini system failed, switching to safe fallback:", error.message);
+    console.error("AI system failed, switching to safe fallback:", error.message);
     
-    // Backup Data: Agar API key na ho ya Gemini down ho, toh website par ye dikhega
     let fallbackExam = "Competitive Exam";
     try { if (event.body) fallbackExam = JSON.parse(event.body).examName || "Competitive Exam"; } catch(e) {}
 
