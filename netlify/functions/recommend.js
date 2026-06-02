@@ -14,7 +14,7 @@ exports.handler = async function (event, context) {
     const { examName } = JSON.parse(event.body);
     if (!examName) return { statusCode: 400, headers, body: JSON.stringify({ error: 'examName missing' }) };
 
-    console.log("Processing via Ultimate GitHub AI for:", examName);
+    console.log("Processing via Highly Accurate AI for:", examName);
 
     const token = process.env.GITHUB_TOKEN; 
     if (!token) throw new Error("GITHUB_TOKEN missing");
@@ -32,15 +32,15 @@ exports.handler = async function (event, context) {
         messages: [
           {
             role: "system",
-            content: "You are a database API that ONLY outputs a raw JSON array of 3 books. Never include markdown formatting like ```json, never write intro/outro text. Just output the raw [ ] array."
+            content: "You are a strict, highly accurate Indian competitive exams database API. You ONLY output a raw JSON array of 3 books. CRITICAL: Never invent fake book titles or wrong authors. Only recommend real, highly popular, and existing books from well-known publishers like Arihant, Kiran Publication, Disha, McGraw Hill, RS Aggarwal, or M. Laxmikanth. Never include markdown formatting like ```json, never write intro/outro text. Output ONLY the raw [ ] array."
           },
           {
             role: "user",
-            content: `Provide exactly 3 top books for: "${examName}". Format: [{"title": "Book Title - Author", "search": "amazon search query"}].`
+            content: `Provide exactly 3 real and best-selling books for the exam: "${event.body ? JSON.parse(event.body).examName : examName}". Format: [{"title": "Book Title - Publisher/Author", "search": "amazon search query"}].`
           }
         ],
-        temperature: 0.1,
-        max_tokens: 250 // 🔥 YEH ZAROORI THA! Isse AI ko poora jawab likhne ka space milega
+        temperature: 0.0, // 🔥 Kreativity ZERO! Ab yeh sirf factual data dega
+        max_tokens: 250
       })
     });
 
@@ -60,21 +60,7 @@ exports.handler = async function (event, context) {
       return { statusCode: 200, headers, body: JSON.stringify(parsedData) };
     }
 
-    // Smart Text Parser (Fallback)
-    console.log("JSON brackets missing. Running Smart Text-to-JSON Converter...");
-    const lines = rawText.split('\n')
-      .map(l => l.replace(/^[^a-zA-Z0-9]+/, '').trim())
-      .filter(l => l.length > 10);
-
-    if (lines.length >= 2) {
-      const customBooks = lines.slice(0, 3).map(line => {
-        const cleanTitle = line.replace(/["']/g, "").substring(0, 60);
-        return { title: cleanTitle, search: cleanTitle.toLowerCase() };
-      });
-      return { statusCode: 200, headers, body: JSON.stringify(customBooks) };
-    }
-
-    throw new Error("AI response was too short or unparseable");
+    throw new Error("AI response format issue");
 
   } catch (error) {
     console.error("Ultimate Parser Fallback triggered:", error.message);
