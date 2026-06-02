@@ -14,12 +14,10 @@ exports.handler = async function (event, context) {
     const { examName } = JSON.parse(event.body);
     if (!examName) return { statusCode: 400, headers, body: JSON.stringify({ error: 'examName missing' }) };
 
-    console.log("Processing via Robust GitHub AI for:", examName);
+    console.log("Processing via Ultimate GitHub AI for:", examName);
 
     const token = process.env.GITHUB_TOKEN; 
-    if (!token) {
-      throw new Error("GITHUB_TOKEN missing in Netlify Environment Variables");
-    }
+    if (!token) throw new Error("GITHUB_TOKEN missing");
 
     const url = "https://models.inference.ai.azure.com/chat/completions";
 
@@ -34,11 +32,11 @@ exports.handler = async function (event, context) {
         messages: [
           {
             role: "system",
-            content: "You are a strict JSON api. You only output a raw JSON array. Never write introductory text, never write markdown blocks, never explain anything."
+            content: "You are a database API that ONLY outputs a raw JSON array of 3 books. Never include markdown formatting like ```json, never write intro/outro text, never explain anything. Just output the raw [ ] array."
           },
           {
             role: "user",
-            content: `Return a valid JSON array containing exactly 3 real, top books for the Indian exam: "${examName}". Use this exact structure: [{"title": "Book Name - Author", "search": "amazon query"}]. Output ONLY the raw JSON array.`
+            content: `Provide exactly 3 top books for: "${examName}". Format: [{"title": "Book Title - Author", "search": "amazon search query"}].`
           }
         ],
         temperature: 0.1
@@ -46,33 +44,47 @@ exports.handler = async function (event, context) {
     });
 
     const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.error?.message || "GitHub AI Error");
-    }
+    if (!response.ok) throw new Error(data.error?.message || "GitHub AI Error");
 
     let rawText = data.choices[0].message.content.trim();
-    console.log("Raw AI Response received successfully");
+    
+    // 🔍 Yeh line Netlify log mein dikhayegi ki AI ne asliyat mein kya bheja hai
+    console.log("ASLI AI RESPONSE:", rawText);
 
-    // 🔥 BULLETPROOF JSON EXTRACTION: Find the exact start [ and end ]
+    // Try 1: Standard JSON extraction using brackets
     const startIdx = rawText.indexOf('[');
     const endIdx = rawText.lastIndexOf(']');
 
-    if (startIdx === -1 || endIdx === -1 || endIdx < startIdx) {
-      throw new Error("Valid JSON array format not found in AI response");
+    if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+      const cleanJsonString = rawText.substring(startIdx, endIdx + 1);
+      const parsedData = JSON.parse(cleanJsonString);
+      return { statusCode: 200, headers, body: JSON.stringify(parsedData) };
     }
 
-    const cleanJsonString = rawText.substring(startIdx, endIdx + 1);
-    const parsedData = JSON.parse(cleanJsonString);
+    // 🔥 Try 2: SMART TEXT PARSER (Agar AI ne JSON ke badle plain text list bhej di ho)
+    console.log("JSON brackets missing. Running Smart Text-to-JSON Converter...");
+    
+    // Text ko lines mein todo aur faltu empty lines hatao
+    const lines = rawText.split('\n')
+      .map(l => l.replace(/^[^a-zA-Z0-9]+/, '').trim()) // Aage ke numbers/bullets (1., -, *) hatao
+      .filter(l => l.length > 10); // Bahut chhoti lines hatao
 
-    return { 
-      statusCode: 200, 
-      headers, 
-      body: JSON.stringify(parsedData) 
-    };
+    if (lines.length >= 2) {
+      const customBooks = lines.slice(0, 3).map(line => {
+        // Line se clean title banao
+        const cleanTitle = line.replace(/["']/g, "").substring(0, 60);
+        return {
+          title: cleanTitle,
+          search: cleanTitle.toLowerCase()
+        };
+      });
+      return { statusCode: 200, headers, body: JSON.stringify(customBooks) };
+    }
+
+    throw new Error("AI response was too short or unparseable");
 
   } catch (error) {
-    console.error("AI Parser caught an issue, deploying safe fallback:", error.message);
+    console.error("Ultimate Parser Fallback triggered:", error.message);
     
     let fallbackExam = "Competitive Exam";
     try { if (event.body) fallbackExam = JSON.parse(event.body).examName || "Competitive Exam"; } catch(e) {}
@@ -82,8 +94,8 @@ exports.handler = async function (event, context) {
       headers,
       body: JSON.stringify([
         {"title": `Best Recommended Guide Books for ${fallbackExam}`, "search": `${fallbackExam} exam best books`},
-        {"title": `${fallbackExam} Previous Years Solved Papers`, "search": `${fallbackExam} solved papers`},
-        {"title": `${fallbackExam} Mock Tests & Practice Set Pack`, "search": `${fallbackExam} practice set`}
+        {"title": `${fallbackExam} Previous Years Solved Papers Pack`, "search": `${fallbackExam} solved papers`},
+        {"title": `${fallbackExam} Top Mock Tests & Practice Set`, "search": `${fallbackExam} practice set`}
       ])
     };
   }
