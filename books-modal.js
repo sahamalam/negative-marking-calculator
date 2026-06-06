@@ -1,4 +1,4 @@
-const NMC_TAG = "nmc007-21"; 
+const NMC_TAG = "nmc0d-21"; 
 
 // ── 1. CSS Injection (Sundar Boxes ke Liye) ───────────────────
 const _nmcStyle = document.createElement("style");
