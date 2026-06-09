@@ -712,3 +712,28 @@ background-color: #FF6600
   font-weight: 500;
   color: #333;
 }
+
+/* === Footer Nav Links === */
+.footer-nav-links {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 10px 0 4px;
+  flex-wrap: wrap;
+}
+
+.footer-nav-links a {
+  color: #0D2366;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+  opacity: 0.75;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.footer-nav-links a:hover {
+  opacity: 1;
+  color: #FB5416;
+}
+/* === End Footer Nav Links === */
