@@ -154,11 +154,11 @@ function closeModal() {
     
 
     // Prompt for full name
-    let username = prompt("Please enter your full name.");
+    let username = prompt("Please enter your full name:");
     if (username === null) return;
     username = username.trim();
     while (!isValidUsername(username)) {
-        alert("❌ Invalid name!\nPlease enter your full name with at least two real words.");
+        alert("❌ Invalid name!\nPlease enter your full name with first name and last name");
         username = prompt("Please enter your full name:");
         if (username === null) return;
         username = username.trim();
@@ -169,7 +169,7 @@ function closeModal() {
     if (courseName === null) return;
     courseName = courseName.trim();
     while (!isValidCourseName(courseName)) {
-        alert("❌ Invalid exam name!\nPlease enter a real exam.");
+        alert("❌ Invalid exam name!\nPlease enter full exam name with exam year");
         courseName = prompt("Please enter your exam name:");
         if (courseName === null) return;
         courseName = courseName.trim();
